@@ -28,6 +28,7 @@
             margin: 0;
             padding: 0;
             min-height: 100vh;
+            -webkit-tap-highlight-color: transparent; /* 移除移动端点击高亮 */
         }
 
         /* 萌系毛玻璃 */
@@ -36,7 +37,10 @@
             backdrop-filter: blur(12px);
             border: 2px solid #fff;
             box-shadow: 0 8px 32px rgba(255, 158, 181, 0.15);
-            border-radius: 3rem !important; /* 更大的圆角 */
+            border-radius: 2rem !important; /* 稍微减小圆角以适应手机 */
+        }
+        @media (min-width: 768px) {
+            .zyyo-glass { border-radius: 3rem !important; }
         }
 
         /* 渐变文字 - 糖果色 */
@@ -57,8 +61,11 @@
         /* 头像框效果 - 变成圆形贴纸风格 */
         .logo-container {
             position: relative;
-            width: 120px;
-            height: 120px;
+            width: 100px;
+            height: 100px;
+        }
+        @media (min-width: 768px) {
+            .logo-container { width: 120px; height: 120px; }
         }
         .logo-frame {
             position: absolute;
@@ -76,13 +83,16 @@
             justify-content: space-between;
             background: rgba(255, 255, 255, 0.8);
             border: 2px solid transparent;
-            padding: 20px;
-            border-radius: 24px;
+            padding: 16px;
+            border-radius: 20px;
             transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); /* 弹跳动画 */
             box-shadow: 0 4px 15px rgba(0,0,0,0.03);
             cursor: pointer;
         }
-        .projectItem:hover {
+        @media (min-width: 768px) {
+            .projectItem { padding: 20px; border-radius: 24px; }
+        }
+        .projectItem:hover, .projectItem:active {
             transform: translateY(-5px) scale(1.02);
             border-color: var(--primary-pink);
             box-shadow: 0 10px 25px rgba(255, 158, 181, 0.2);
@@ -160,7 +170,7 @@
         <!-- 左侧栏 -->
         <aside class="zyyo-left w-full lg:w-[320px] shrink-0 flex flex-col gap-6">
             <!-- 资料卡 -->
-            <div class="zyyo-glass p-8 flex flex-col items-center text-center">
+            <div class="zyyo-glass p-6 md:p-8 flex flex-col items-center text-center">
                 <div class="logo-container mb-6">
                     <div class="w-full h-full rounded-full overflow-hidden bg-pink-100 border-4 border-white shadow-lg">
                         <!-- QQ 头像链接：将 nk= 后面的数字换成你的 QQ 号即可 -->
@@ -243,24 +253,24 @@
 
         <!-- 右侧内容区 -->
         <main class="zyyo-right flex-1 flex flex-col gap-8">
-            <header class="zyyo-glass p-8 md:p-12 relative overflow-hidden">
+            <header class="zyyo-glass p-6 md:p-12 relative overflow-hidden">
                 <!-- 欢迎语 -->
-                <div class="welcome text-4xl md:text-5xl font-black mb-4 tracking-tight">
+                <div class="welcome text-3xl md:text-5xl font-black mb-4 tracking-tight">
                     Hi~ 我是 <span class="gradientText">Zzai</span> <span class="text-3xl">🐾</span>
                 </div>
-                <div class="description text-lg mb-3 font-bold text-[#8d6e63]">
+                <div class="description text-base md:text-lg mb-3 font-bold text-[#8d6e63]">
                     ✨ <span class="highlight-text">全栈</span> 魔法师 & 像素艺术家
                 </div>
-                <div class="description text-[#a1887f] mb-8 font-medium">
+                <div class="description text-sm md:text-base text-[#a1887f] mb-8 font-medium">
                     "唯有 <span class="text-pink-400 font-bold">热爱</span> 能抵岁月漫长，代码也能写成诗。"
                 </div>
 
-                <!-- 像素猫咪动画 Canvas (增加 id 以便 JS 绑定交互) -->
-                <div class="mt-8 w-full h-48 bg-[#fff0f5] rounded-3xl border-4 border-white shadow-inner relative overflow-hidden flex items-center justify-center cursor-pointer" id="pixelCatContainer">
+                <!-- 像素猫咪动画 Canvas -->
+                <div class="mt-8 w-full h-40 md:h-48 bg-[#fff0f5] rounded-3xl border-4 border-white shadow-inner relative overflow-hidden flex items-center justify-center cursor-pointer" id="pixelCatContainer">
                     <canvas id="pixelCatCanvas" class="w-full h-full"></canvas>
-                    <!-- 提示文字 -->
-                    <div class="absolute bottom-2 right-4 text-xs text-pink-400 font-bold bg-white/80 px-2 py-1 rounded-lg pointer-events-none">
-                        ✨ 悬停猫咪有惊喜 | 互动
+                    <!-- 提示文字 (仅在非悬停/非互动时显示) -->
+                    <div id="hintText" class="absolute bottom-2 right-4 text-xs text-pink-400 font-bold bg-white/80 px-2 py-1 rounded-lg pointer-events-none transition-opacity duration-300">
+                        ✨ 悬停/点击猫咪有惊喜
                     </div>
                 </div>
             </header>
@@ -336,7 +346,7 @@
         lucide.createIcons();
 
         // -----------------------------------------------------------
-        // 1. 左侧静态温馨工位动画 (保持不变)
+        // 1. 左侧静态温馨工位动画 (增加自适应缩放)
         // -----------------------------------------------------------
         const sidebarCanvas = document.getElementById('sidebarCanvas');
         const sCtx = sidebarCanvas.getContext('2d');
@@ -351,7 +361,11 @@
         function drawRect(ctx, x, y, w, h, color) { ctx.fillStyle = color; ctx.fillRect(Math.floor(x), Math.floor(y), Math.floor(w), Math.floor(h)); }
         function drawSidebarAnimation() {
             sCtx.clearRect(0, 0, sWidth, sHeight);
-            const scale = 5; const cx = sWidth / 2; const cy = sHeight / 2; const baseX = cx - (20 * scale); const baseY = cy - (10 * scale);
+            // 动态计算缩放比例，适应不同宽度的侧边栏
+            const targetScale = Math.min(sWidth / 55, sHeight / 35);
+            const scale = Math.max(2, Math.floor(targetScale)); // 至少2倍，且为整数保持像素锐利
+            
+            const cx = sWidth / 2; const cy = sHeight / 2; const baseX = cx - (20 * scale); const baseY = cy - (10 * scale);
             sCtx.fillStyle = P.bg; sCtx.fillRect(0, 0, sWidth, sHeight);
             const winX = baseX + 2*scale; const winY = baseY - 8*scale;
             drawRect(sCtx, winX, winY, 16*scale, 12*scale, P.sky); drawRect(sCtx, winX + 2*scale, winY + 2*scale, 4*scale, 2*scale, '#fff'); drawRect(sCtx, winX + 10*scale, winY + 5*scale, 3*scale, 1*scale, '#fff'); sCtx.lineWidth = scale; sCtx.strokeStyle = '#fff'; sCtx.strokeRect(winX, winY, 16*scale, 12*scale); drawRect(sCtx, winX + 8*scale, winY, 1*scale, 12*scale, '#fff'); drawRect(sCtx, winX, winY + 6*scale, 16*scale, 1*scale, '#fff'); drawRect(sCtx, winX - 1*scale, winY, 2*scale, 10*scale, '#f8bbd0'); drawRect(sCtx, winX + 15*scale, winY, 2*scale, 10*scale, '#f8bbd0');
@@ -367,7 +381,7 @@
         }
 
         // -----------------------------------------------------------
-        // 2. 顶部像素猫咪动画逻辑 (更新互动)
+        // 2. 顶部像素猫咪动画逻辑 (修复移动端卡顿)
         // -----------------------------------------------------------
         const canvas = document.getElementById('pixelCatCanvas');
         const ctx = canvas.getContext('2d');
@@ -382,6 +396,8 @@
         // 互动状态
         let isCatHovered = false;
         let currentBubbleText = "";
+        let isTouchInteraction = false;
+        let touchTimeout;
         
         // 随机词库
         const randomWords = [
@@ -472,7 +488,7 @@
                     ctx.fillStyle = C.outline; ctx.font = '12px "Fredoka"'; ctx.fillText("Meow~", catX + 40, catY);
                 }
                 
-                // 悬停互动气泡 (显示在猫妈妈头上)
+                // 悬停/点击互动气泡 (显示在猫妈妈头上)
                 if (isCatHovered && index === 0) {
                     const bubbleX = catX + 20;
                     const bubbleY = catY - 30;
@@ -504,20 +520,51 @@
             requestAnimationFrame(loop);
         }
 
-        // 交互监听
-        const pixelCatContainer = document.getElementById('pixelCatContainer');
-        pixelCatContainer.addEventListener('mouseenter', () => { 
+        // --- 交互优化核心逻辑 ---
+
+        // 1. 触摸事件处理 (移动端)
+        canvas.addEventListener('touchstart', (e) => {
+            e.preventDefault(); // 防止触发鼠标模拟
+            isTouchInteraction = true;
+            
+            // 触发粒子
+            const rect = canvas.getBoundingClientRect();
+            const touch = e.touches[0];
+            const x = touch.clientX - rect.left;
+            const y = touch.clientY - rect.top;
+            for(let i=0; i<6; i++) particles.push(new Particle(x, y));
+
+            // 触发暂停和气泡
+            currentSpeed = 0;
+            isCatHovered = true;
+            currentBubbleText = randomWords[Math.floor(Math.random() * randomWords.length)];
+            
+            // 2秒后自动恢复行走
+            if(touchTimeout) clearTimeout(touchTimeout);
+            touchTimeout = setTimeout(() => {
+                currentSpeed = baseSpeed;
+                isCatHovered = false;
+                isTouchInteraction = false;
+            }, 2000);
+        }, { passive: false });
+
+        // 2. 鼠标悬停处理 (PC端)
+        canvas.addEventListener('mouseenter', () => { 
+            if(isTouchInteraction) return; // 如果是触摸操作中，不处理
             currentSpeed = 0; 
             canvas.style.cursor = "pointer";
             isCatHovered = true;
             currentBubbleText = randomWords[Math.floor(Math.random() * randomWords.length)];
         });
-        pixelCatContainer.addEventListener('mouseleave', () => { 
+        canvas.addEventListener('mouseleave', () => { 
+            if(isTouchInteraction) return;
             currentSpeed = baseSpeed; 
             canvas.style.cursor = "default";
             isCatHovered = false;
         });
-        pixelCatContainer.addEventListener('click', (e) => {
+        
+        // 3. 鼠标点击 (PC端补充)
+        canvas.addEventListener('click', (e) => {
             const rect = canvas.getBoundingClientRect();
             const x = e.clientX - rect.left; const y = e.clientY - rect.top;
             for(let i=0; i<6; i++) particles.push(new Particle(x, y));
