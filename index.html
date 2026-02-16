@@ -11,55 +11,52 @@
         @import url('https://fonts.googleapis.com/css2?family=Fredoka:wght@300;400;500;600;700&family=Silkscreen&display=swap');
 
         :root {
-            /* 可爱配色变量 */
-            --bg-color: #fff0f5; /* 浅粉色背景 */
+            /* 动态配色变量 */
+            --bg-color: #fff0f5; 
             --glass-bg: rgba(255, 255, 255, 0.65);
             --border-color: rgba(255, 182, 193, 0.4);
             --primary-pink: #ff9eb5;
             --primary-blue: #89CFF0;
-            --text-main: #5d4037; /* 巧克力色字体 */
-            --text-sub: #8d6e63;
+            
+            /* 关键修复：使用变量管理文字颜色，以便日夜切换 */
+            --text-main: #5d4037; /* 白天：巧克力色 */
+            --text-sub: #8d6e63;  /* 白天：浅棕色 */
         }
 
         body {
-            font-family: 'Fredoka', sans-serif; /* 使用圆润字体 */
+            font-family: 'Fredoka', sans-serif;
             background: linear-gradient(135deg, #fff0f5 0%, #e0f7fa 100%);
             color: var(--text-main);
             margin: 0;
             padding: 0;
             min-height: 100vh;
-            -webkit-tap-highlight-color: transparent; /* 移除移动端点击高亮 */
+            -webkit-tap-highlight-color: transparent;
+            transition: background 0.5s ease; /* 背景切换动画 */
         }
 
         /* 像素字体类 */
-        .font-pixel {
-            font-family: 'Silkscreen', cursive;
-        }
+        .font-pixel { font-family: 'Silkscreen', cursive; }
 
-        /* 强制像素画不模糊，边缘锐利 */
-        canvas {
-            image-rendering: pixelated;
-            image-rendering: crisp-edges;
-        }
-        
-        /* 音乐播放器背景Canvas不需要像素化处理，要平滑 (因为是写实唱片) */
-        #musicBgCanvas {
-            image-rendering: auto !important; 
-        }
+        /* Canvas 渲染设置 */
+        canvas { image-rendering: pixelated; image-rendering: crisp-edges; }
+        #musicBgCanvas { image-rendering: auto !important; } /* 唱片要高清 */
 
         /* 萌系毛玻璃 */
         .zyyo-glass {
             background: var(--glass-bg);
             backdrop-filter: blur(12px);
-            border: 2px solid #fff;
+            border: 2px solid rgba(255,255,255, 0.3);
             box-shadow: 0 8px 32px rgba(255, 158, 181, 0.15);
-            border-radius: 2rem !important; /* 稍微减小圆角以适应手机 */
+            border-radius: 2rem !important;
+            transition: background 0.3s, border-color 0.3s;
         }
-        @media (min-width: 768px) {
-            .zyyo-glass { border-radius: 3rem !important; }
-        }
+        @media (min-width: 768px) { .zyyo-glass { border-radius: 3rem !important; } }
 
-        /* 渐变文字 - 糖果色 */
+        /* 文字颜色工具类 - 绑定到 CSS 变量 */
+        .text-dynamic-main { color: var(--text-main); transition: color 0.3s; }
+        .text-dynamic-sub { color: var(--text-sub); transition: color 0.3s; }
+
+        /* 渐变文字 */
         .gradientText {
             background: linear-gradient(to right, #ff758c, #ff7eb3);
             -webkit-background-clip: text;
@@ -74,51 +71,36 @@
             border-radius: 8px;
         }
 
-        /* 头像框效果 - 变成圆形贴纸风格 */
-        .logo-container {
-            position: relative;
-            width: 100px;
-            height: 100px;
-        }
-        @media (min-width: 768px) {
-            .logo-container { width: 120px; height: 120px; }
-        }
+        /* 头像框旋转动画 */
+        .logo-container { position: relative; width: 100px; height: 100px; }
+        @media (min-width: 768px) { .logo-container { width: 120px; height: 120px; } }
         .logo-frame {
-            position: absolute;
-            inset: -8px;
+            position: absolute; inset: -8px;
             border: 4px dashed var(--primary-pink);
             border-radius: 50%;
             animation: spin 20s linear infinite;
         }
         @keyframes spin { 100% { transform: rotate(360deg); } }
 
-        /* 项目卡片 - 像便签纸 */
+        /* 项目卡片 */
         .projectItem {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            background: rgba(255, 255, 255, 0.8);
+            display: flex; align-items: center; justify-content: space-between;
+            background: rgba(255, 255, 255, 0.8); /* 卡片保持浅色底，深色文字更清晰 */
             border: 2px solid transparent;
-            padding: 16px;
-            border-radius: 20px;
-            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); /* 弹跳动画 */
+            padding: 16px; border-radius: 20px;
+            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
             box-shadow: 0 4px 15px rgba(0,0,0,0.03);
             cursor: pointer;
         }
-        @media (min-width: 768px) {
-            .projectItem { padding: 20px; border-radius: 24px; }
-        }
+        @media (min-width: 768px) { .projectItem { padding: 20px; border-radius: 24px; } }
         .projectItem:hover, .projectItem:active {
             transform: translateY(-5px) scale(1.02);
             border-color: var(--primary-pink);
             box-shadow: 0 10px 25px rgba(255, 158, 181, 0.2);
         }
 
-        /* 开关切换 - 变成日夜切换 */
-        .onoffswitch {
-            position: relative; width: 56px;
-            -webkit-user-select:none;
-        }
+        /* 开关切换 */
+        .onoffswitch { position: relative; width: 56px; -webkit-user-select:none; }
         .onoffswitch-checkbox { display: none; }
         .onoffswitch-label {
             display: block; overflow: hidden; cursor: pointer;
@@ -126,105 +108,62 @@
             background-color: #89CFF0; /* 白天蓝 */
             transition: background-color 0.3s;
             box-shadow: inset 0 2px 5px rgba(0,0,0,0.1);
-            height: 32px; /* 显式设置高度以对齐 */
+            height: 32px;
         }
-        .onoffswitch-inner {
-            display: block; width: 200%; margin-left: -100%;
-        }
+        .onoffswitch-inner { display: block; width: 200%; margin-left: -100%; }
         .onoffswitch-switch {
             display: block; width: 24px; height: 24px; margin: 4px;
-            background: #fff;
-            position: absolute; top: 0; bottom: 0;
-            right: 24px;
+            background: #fff; position: absolute; top: 0; bottom: 0; right: 24px;
             border-radius: 50%;
             transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
             box-shadow: 0 2px 5px rgba(0,0,0,0.2);
         }
-        .onoffswitch-checkbox:checked + .onoffswitch-label {
-            background-color: #2c3e50; /* 晚上深蓝 */
-        }
-        .onoffswitch-checkbox:checked + .onoffswitch-label .onoffswitch-switch {
-            right: 0px; 
-            background-color: #f1c40f; /* 月亮黄 */
-        }
-
-        /* 移动端适配 */
-        @media (max-width: 1024px) {
-            .zyyo-main { flex-direction: column; }
-            .zyyo-left { width: 100%; position: relative; top: 0; margin-bottom: 2rem; }
-        }
+        .onoffswitch-checkbox:checked + .onoffswitch-label { background-color: #2c3e50; }
+        .onoffswitch-checkbox:checked + .onoffswitch-label .onoffswitch-switch { right: 0px; background-color: #f1c40f; }
 
         /* 装饰性漂浮物 */
-        .floating-icon {
-            position: absolute;
-            opacity: 0.15;
-            z-index: -1;
-            animation: float 6s ease-in-out infinite;
-        }
+        .floating-icon { position: absolute; opacity: 0.15; z-index: -1; animation: float 6s ease-in-out infinite; }
         @keyframes float {
             0%, 100% { transform: translateY(0) rotate(0deg); }
             50% { transform: translateY(-20px) rotate(10deg); }
         }
         
-        /* 气泡显示类 */
-        .bubble-show {
-            opacity: 1 !important;
-            transform: translateY(0) !important;
-        }
-
-        /* 天气小组件动画 */
-        .weather-fade-in {
-            animation: fadeIn 0.8s ease-out forwards;
-            opacity: 0;
-            transform: translateY(10px);
-        }
-
-        /* 跑马灯动画 */
+        /* 跑马灯 */
         .animate-marquee {
             animation: marquee 10s linear infinite;
-            display: inline-block;
-            padding-left: 100%; /* 初始位置在右侧 */
+            display: inline-block; padding-left: 100%;
         }
-        @keyframes marquee {
-            0% { transform: translateX(0); }
-            100% { transform: translateX(-100%); }
-        }
-        @keyframes fadeIn {
-            to { opacity: 1; transform: translateY(0); }
-        }
+        @keyframes marquee { 0% { transform: translateX(0); } 100% { transform: translateX(-100%); } }
 
-        /* --- 新增：可爱音量条样式 --- */
+        /* 可爱音量条 */
         .cute-range {
-            -webkit-appearance: none;
-            width: 100%;
-            height: 6px;
-            background: #ffe0e9;
-            border-radius: 10px;
-            outline: none;
+            -webkit-appearance: none; width: 100%; height: 6px;
+            background: #ffe0e9; border-radius: 10px; outline: none;
         }
         .cute-range::-webkit-slider-thumb {
-            -webkit-appearance: none;
-            appearance: none;
-            width: 14px;
-            height: 14px;
-            background: #ff80ab;
-            border: 2px solid #fff;
-            border-radius: 50%;
-            cursor: pointer;
-            transition: transform 0.1s;
+            -webkit-appearance: none; appearance: none;
+            width: 14px; height: 14px; background: #ff80ab;
+            border: 2px solid #fff; border-radius: 50%;
+            cursor: pointer; transition: transform 0.1s;
             box-shadow: 0 2px 5px rgba(255,128,171, 0.4);
         }
-        .cute-range::-webkit-slider-thumb:hover {
-            transform: scale(1.2);
-        }
+        .cute-range::-webkit-slider-thumb:hover { transform: scale(1.2); }
+
+        /* 全局滚动条美化 */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: rgba(255, 182, 193, 0.5); border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: rgba(255, 158, 181, 0.8); }
     </style>
 </head>
 <body class="p-4 lg:p-12 overflow-x-hidden">
 
-    <!-- 背景装饰 -->
-    <i data-lucide="cloud" class="floating-icon w-32 h-32 text-white top-10 left-10"></i>
-    <i data-lucide="star" class="floating-icon w-24 h-24 text-yellow-300 bottom-20 right-10" style="animation-delay: 1s;"></i>
-    <i data-lucide="heart" class="floating-icon w-16 h-16 text-pink-300 top-1/2 left-1/2" style="animation-delay: 2s;"></i>
+    <!-- 背景装饰 (位置固定，不随内容滚动更自然) -->
+    <div class="fixed inset-0 pointer-events-none z-0">
+        <i data-lucide="cloud" class="floating-icon w-32 h-32 text-white top-10 left-10"></i>
+        <i data-lucide="star" class="floating-icon w-24 h-24 text-yellow-300 bottom-20 right-10" style="animation-delay: 1s;"></i>
+        <i data-lucide="heart" class="floating-icon w-16 h-16 text-pink-300 top-1/2 left-1/2" style="animation-delay: 2s;"></i>
+    </div>
 
     <!-- 主容器 -->
     <div class="zyyo-main max-w-7xl mx-auto flex flex-col lg:flex-row gap-8 relative z-10">
@@ -235,18 +174,16 @@
             <div class="zyyo-glass p-6 md:p-8 flex flex-col items-center text-center">
                 <div class="logo-container mb-6">
                     <div class="w-full h-full rounded-full overflow-hidden bg-pink-100 border-4 border-white shadow-lg">
-                        <!-- QQ 头像链接：将 nk= 后面的数字换成你的 QQ 号即可 -->
                         <img src="https://q1.qlogo.cn/g?b=qq&nk=7245304&s=640" class="w-full h-full object-cover">
                     </div>
-                    <!-- 旋转的虚线框 -->
                     <div class="logo-frame"></div>
                 </div>
 
                 <div class="flex flex-col gap-2 w-full mb-6">
-                    <div class="flex items-center justify-center gap-2 text-sm text-[#8d6e63]">
+                    <div class="flex items-center justify-center gap-2 text-sm text-dynamic-sub">
                         <i data-lucide="map-pin" class="w-4 h-4 text-pink-400"></i> 喵星 · 南京分部
                     </div>
-                    <div class="flex items-center justify-center gap-2 text-sm text-[#8d6e63]">
+                    <div class="flex items-center justify-center gap-2 text-sm text-dynamic-sub">
                         <i data-lucide="briefcase" class="w-4 h-4 text-blue-400"></i> 上班族 · 搬砖中
                     </div>
                 </div>
@@ -259,7 +196,7 @@
                     <span class="px-3 py-1.5 bg-purple-100 text-purple-500 rounded-xl text-xs font-bold shadow-sm"># 上班族</span>
                 </div>
 
-                <!-- 左侧像素动画区域 (工位) -->
+                <!-- 左侧像素动画区域 -->
                 <div class="w-full bg-[#fff0f5] rounded-2xl border-4 border-white shadow-inner overflow-hidden relative mb-6" style="height: 180px;">
                     <canvas id="sidebarCanvas" class="w-full h-full"></canvas>
                     <div class="absolute bottom-2 w-full text-center text-xs text-[#ec407a] opacity-80 font-bold tracking-widest">
@@ -269,31 +206,31 @@
 
                 <!-- 社交图标栏 -->
                 <div class="flex justify-center items-center gap-3 w-full flex-wrap mb-4">
-                    <!-- QQ -->
-                    <a href="#" target="_blank" class="w-10 h-10 bg-white/60 rounded-xl flex items-center justify-center text-slate-500 hover:bg-blue-50 hover:text-[#12B7F5] shadow-sm transition-all hover:-translate-y-1" title="QQ">
-                        <svg class="w-5 h-5 fill-current" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg"><path d="M824.8 613.2c-16-51.4-34.4-94.6-62.7-165.3C766.5 262.2 689.3 112 511.5 112 331.7 112 256.2 265.2 261 447.9c-28.4 70.8-46.7 113.7-62.7 165.3-34 109.5-23 154.8-14.6 155.8 18 2.2 70.1-82.4 70.1-82.4 0 49 25.2 112.9 79.8 159-26.4 8.1-85.7 29.9-71.6 53.8 11.4 19.3 196.2 12.3 249.5 6.3 53.3 6 238.1 13 249.5-6.3 14.1-23.8-45.3-45.7-71.6-53.8 54.6-46.2 79.8-110.1 79.8-159 0 0 52.1 84.6 70.1 82.4 8.5-1.1 19.5-46.4-14.5-155.8z"/></svg>
+                    <a href="#" target="_blank" class="w-10 h-10 bg-white/60 rounded-xl flex items-center justify-center text-slate-500 hover:bg-blue-50 hover:text-[#12B7F5] shadow-sm transition-all hover:-translate-y-1">
+                        <svg class="w-5 h-5 fill-current" viewBox="0 0 1024 1024"><path d="M824.8 613.2c-16-51.4-34.4-94.6-62.7-165.3C766.5 262.2 689.3 112 511.5 112 331.7 112 256.2 265.2 261 447.9c-28.4 70.8-46.7 113.7-62.7 165.3-34 109.5-23 154.8-14.6 155.8 18 2.2 70.1-82.4 70.1-82.4 0 49 25.2 112.9 79.8 159-26.4 8.1-85.7 29.9-71.6 53.8 11.4 19.3 196.2 12.3 249.5 6.3 53.3 6 238.1 13 249.5-6.3 14.1-23.8-45.3-45.7-71.6-53.8 54.6-46.2 79.8-110.1 79.8-159 0 0 52.1 84.6 70.1 82.4 8.5-1.1 19.5-46.4-14.5-155.8z"/></svg>
                     </a>
-                    <!-- Bilibili -->
-                    <a href="#" target="_blank" class="w-10 h-10 bg-white/60 rounded-xl flex items-center justify-center text-slate-500 hover:bg-pink-50 hover:text-[#FF6699] shadow-sm transition-all hover:-translate-y-1" title="Bilibili">
-                        <svg class="w-5 h-5 fill-current" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg"><path d="M777.514667 137.984c-32.938667-12.288-69.290667 3.029333-82.176 35.029333L670.336 236.885333H353.664l-25.045333-63.872c-12.757333-32.042667-49.194667-47.36-82.133334-35.029333-32.981333 12.288-47.829333 49.365333-35.072 81.408l34.090667 86.954667c-112.554667 22.954667-197.888 122.922667-197.888 243.626666v239.36c0 137.216 111.402667 248.618667 248.618667 248.618667h431.530666c137.216 0 248.618667-111.402667 248.618667-248.618667v-239.36c0-120.704-85.333333-220.672-197.888-243.626666l34.090666-86.954667c12.757333-32.042667-2.090667-69.12-35.072-81.408z m-413.696 544.725333c-39.637333 0-71.68-32.042667-71.68-71.68 0-39.637333 32.042667-71.68 71.68-71.68 39.637333 0 71.68 32.042667 71.68 71.68 0 39.637333-32.042667 71.68-71.68 71.68z m297.045333 0c-39.637333 0-71.68-32.042667-71.68-71.68 0-39.637333 32.042667-71.68 71.68-71.68 39.637333 0 71.68 32.042667 71.68 71.68 0 39.637333-32.042667 71.68-71.68 71.68z"/></svg>
+                    <a href="#" target="_blank" class="w-10 h-10 bg-white/60 rounded-xl flex items-center justify-center text-slate-500 hover:bg-pink-50 hover:text-[#FF6699] shadow-sm transition-all hover:-translate-y-1">
+                        <svg class="w-5 h-5 fill-current" viewBox="0 0 1024 1024"><path d="M777.514667 137.984c-32.938667-12.288-69.290667 3.029333-82.176 35.029333L670.336 236.885333H353.664l-25.045333-63.872c-12.757333-32.042667-49.194667-47.36-82.133334-35.029333-32.981333 12.288-47.829333 49.365333-35.072 81.408l34.090667 86.954667c-112.554667 22.954667-197.888 122.922667-197.888 243.626666v239.36c0 137.216 111.402667 248.618667 248.618667 248.618667h431.530666c137.216 0 248.618667-111.402667 248.618667-248.618667v-239.36c0-120.704-85.333333-220.672-197.888-243.626666l34.090666-86.954667c12.757333-32.042667-2.090667-69.12-35.072-81.408z m-413.696 544.725333c-39.637333 0-71.68-32.042667-71.68-71.68 0-39.637333 32.042667-71.68 71.68-71.68 39.637333 0 71.68 32.042667 71.68 71.68 0 39.637333-32.042667 71.68-71.68 71.68z m297.045333 0c-39.637333 0-71.68-32.042667-71.68-71.68 0-39.637333 32.042667-71.68 71.68-71.68 39.637333 0 71.68 32.042667 71.68 71.68 0 39.637333-32.042667 71.68-71.68 71.68z"/></svg>
                     </a>
-                    <!-- Weibo -->
-                    <a href="#" target="_blank" class="w-10 h-10 bg-white/60 rounded-xl flex items-center justify-center text-slate-500 hover:bg-yellow-50 hover:text-[#E6162D] shadow-sm transition-all hover:-translate-y-1" title="微博">
-                        <svg class="w-5 h-5 fill-current" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg"><path d="M801.1 556.5c2.7-27.1-5-53.7-21.7-75.1-12-15.4-27.8-26.8-45.7-33-21.6-7.5-44.5-8.2-66.6-2.1-13.3 3.7-26 9.5-37.7 17.1-14.7-24.3-34.9-44.3-59.3-58.6-28.5-16.7-61.2-24.5-94.2-22.5-35.8 2.2-70.1 14.7-99.2 36.3-25.1 18.6-45.9 42.9-60.3 70.3-29.3-9.9-60.6-11.2-90.7-3.9-27.2 6.6-52.1 20.3-72.1 39.6-19.1 18.4-33 41.2-40.2 66.8-9 32.1-8.2 66.2 2.3 97.8 8.1 24.3 22.1 46.1 40.5 63.3 17.9 16.7 39.4 28.7 62.7 35.1 22.9 6.3 46.9 7 70.3 2.1 23.3-4.9 45.4-15.6 64.3-31.2 1.6 13.9 6.1 27.2 13.1 39.4 12.3 21.4 30.6 38.3 53.1 48.9 25.1 11.8 53.1 16.2 80.8 12.6 30.5-4 59.1-16.6 82.5-36.4 23.4-19.8 41.3-45.1 51.7-73.3 10.4-28.2 12.6-58.8 6.4-88.3z"/></svg>
+                    <a href="#" target="_blank" class="w-10 h-10 bg-white/60 rounded-xl flex items-center justify-center text-slate-500 hover:bg-yellow-50 hover:text-[#E6162D] shadow-sm transition-all hover:-translate-y-1">
+                        <svg class="w-5 h-5 fill-current" viewBox="0 0 1024 1024"><path d="M801.1 556.5c2.7-27.1-5-53.7-21.7-75.1-12-15.4-27.8-26.8-45.7-33-21.6-7.5-44.5-8.2-66.6-2.1-13.3 3.7-26 9.5-37.7 17.1-14.7-24.3-34.9-44.3-59.3-58.6-28.5-16.7-61.2-24.5-94.2-22.5-35.8 2.2-70.1 14.7-99.2 36.3-25.1 18.6-45.9 42.9-60.3 70.3-29.3-9.9-60.6-11.2-90.7-3.9-27.2 6.6-52.1 20.3-72.1 39.6-19.1 18.4-33 41.2-40.2 66.8-9 32.1-8.2 66.2 2.3 97.8 8.1 24.3 22.1 46.1 40.5 63.3 17.9 16.7 39.4 28.7 62.7 35.1 22.9 6.3 46.9 7 70.3 2.1 23.3-4.9 45.4-15.6 64.3-31.2 1.6 13.9 6.1 27.2 13.1 39.4 12.3 21.4 30.6 38.3 53.1 48.9 25.1 11.8 53.1 16.2 80.8 12.6 30.5-4 59.1-16.6 82.5-36.4 23.4-19.8 41.3-45.1 51.7-73.3 10.4-28.2 12.6-58.8 6.4-88.3z"/></svg>
                     </a>
-                    <!-- GitHub -->
-                    <a href="#" target="_blank" class="w-10 h-10 bg-white/60 rounded-xl flex items-center justify-center text-slate-500 hover:bg-gray-100 hover:text-black shadow-sm transition-all hover:-translate-y-1" title="GitHub">
-                        <svg class="w-5 h-5 fill-current" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg>
+                    <a href="#" target="_blank" class="w-10 h-10 bg-white/60 rounded-xl flex items-center justify-center text-slate-500 hover:bg-gray-100 hover:text-black shadow-sm transition-all hover:-translate-y-1">
+                        <svg class="w-5 h-5 fill-current" viewBox="0 0 24 24"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg>
                     </a>
                 </div>
 
                 <!-- 日夜开关 + 像素兔子 -->
                 <div class="flex justify-center items-center gap-4 w-full mb-6">
                     
-                    <!-- 1. 左边：日夜图标 -->
+                    <!-- 1. 左边：日夜图标 (修复版：使用Wrapper控制透明度) -->
                     <div class="relative w-6 h-6">
-                        <i id="sunIcon" data-lucide="sun" class="w-6 h-6 text-yellow-500 absolute inset-0 transition-opacity duration-300"></i>
-                        <i id="moonIcon" data-lucide="moon" class="w-6 h-6 text-blue-300 absolute inset-0 transition-opacity duration-300 opacity-0"></i>
+                        <div id="sunWrapper" class="absolute inset-0 transition-opacity duration-300">
+                            <i data-lucide="sun" class="w-6 h-6 text-yellow-500"></i>
+                        </div>
+                        <div id="moonWrapper" class="absolute inset-0 transition-opacity duration-300 opacity-0">
+                            <i data-lucide="moon" class="w-6 h-6 text-blue-300"></i>
+                        </div>
                     </div>
 
                     <!-- 2. 中间：开关 -->
@@ -313,18 +250,13 @@
 
                 <!-- 像素天气小组件 -->
                 <div class="w-full bg-[#e3f2fd] rounded-xl border-2 border-white p-3 flex items-center justify-between shadow-sm relative overflow-hidden group hover:shadow-md transition-all mb-4">
-                    <!-- 左侧：动态像素天气画布 -->
                     <div class="relative w-12 h-12 flex-shrink-0">
                         <canvas id="weatherCanvas" width="48" height="48"></canvas>
                     </div>
-                    
-                    <!-- 右侧：天气信息 (使用像素字体) -->
                     <div class="flex flex-col items-end z-10">
                         <span id="weatherTemp" class="font-pixel text-xl text-[#5d4037] leading-none">--°C</span>
                         <span id="weatherCity" class="font-pixel text-xs text-[#8d6e63] mt-1">LOADING</span>
                     </div>
-                    
-                    <!-- 装饰背景点 -->
                     <div class="absolute -right-4 -bottom-4 w-16 h-16 bg-white/30 rounded-full blur-xl"></div>
                 </div>
                 
@@ -340,18 +272,15 @@
                         <!-- 顶部：歌名与状态 -->
                         <div class="flex items-center justify-between">
                             <div class="flex flex-col overflow-hidden w-40">
-                                <!-- 歌名跑马灯 -->
                                 <div class="text-xs font-pixel text-pink-500 whitespace-nowrap overflow-hidden relative h-4">
                                     <div id="musicTitle" class="absolute animate-marquee whitespace-nowrap">
                                         🎵 正在加载...
                                     </div>
                                 </div>
-                                <!-- 歌手名 -->
                                 <div id="musicArtist" class="text-[10px] text-pink-300 font-bold truncate">
                                     - Zzai -
                                 </div>
                             </div>
-                            <!-- 播放状态灯 -->
                             <div id="playStatus" class="w-2 h-2 rounded-full bg-slate-300 transition-colors duration-300 shadow-sm"></div>
                         </div>
 
@@ -368,16 +297,18 @@
                         <!-- 底部：控制按钮与音量 -->
                         <div class="flex items-center justify-between gap-2">
                             
-                            <!-- 按钮组 -->
+                            <!-- 按钮组 (优化图标显示逻辑) -->
                             <div class="flex items-center gap-3">
                                 <button id="prevBtn" class="text-pink-300 hover:text-pink-500 transition hover:-translate-x-0.5"><i data-lucide="skip-back" class="w-5 h-5 fill-current"></i></button>
-                                <button id="playBtn" class="w-10 h-10 bg-white rounded-xl border-2 border-pink-100 flex items-center justify-center text-pink-400 shadow-sm hover:scale-105 active:scale-95 hover:bg-pink-50 transition">
-                                    <i id="playIcon" data-lucide="play" class="w-5 h-5 fill-current"></i>
+                                <button id="playBtn" class="w-10 h-10 bg-white rounded-xl border-2 border-pink-100 flex items-center justify-center text-pink-400 shadow-sm hover:scale-105 active:scale-95 hover:bg-pink-50 transition relative">
+                                    <!-- 预先放置两个图标，通过类名切换，避免JS重绘 -->
+                                    <i id="iconPlay" data-lucide="play" class="w-5 h-5 fill-current absolute transition-opacity duration-200"></i>
+                                    <i id="iconPause" data-lucide="pause" class="w-5 h-5 fill-current absolute transition-opacity duration-200 opacity-0"></i>
                                 </button>
                                 <button id="nextBtn" class="text-pink-300 hover:text-pink-500 transition hover:translate-x-0.5"><i data-lucide="skip-forward" class="w-5 h-5 fill-current"></i></button>
                             </div>
 
-                            <!-- 音量条 (添加 hidden md:flex 类：手机隐藏，中等屏幕以上显示) -->
+                            <!-- 音量条 (hidden md:flex 手机隐藏) -->
                             <div class="hidden md:flex items-center gap-2 flex-1 max-w-[80px]">
                                 <i id="volIcon" data-lucide="volume-2" class="w-3 h-3 text-pink-300"></i>
                                 <input type="range" id="volSlider" min="0" max="1" step="0.05" value="0.5" class="cute-range">
@@ -385,7 +316,6 @@
                         </div>
                     </div>
 
-                    <!-- 真正的音频标签 -->
                     <audio id="audioPlayer"></audio>
                 </div>
 
@@ -399,17 +329,16 @@
                 <div class="welcome text-3xl md:text-5xl font-black mb-4 tracking-tight">
                     Hi~ 我是 <span class="gradientText">Zzai</span> <span class="text-3xl">🐾</span>
                 </div>
-                <div class="description text-base md:text-lg mb-3 font-bold text-[#8d6e63]">
+                <div class="description text-base md:text-lg mb-3 font-bold text-dynamic-sub">
                     ✨ <span class="highlight-text">全栈</span> 魔法师 & 像素艺术家
                 </div>
-                <div class="description text-sm md:text-base text-[#a1887f] mb-8 font-medium">
+                <div class="description text-sm md:text-base text-dynamic-sub mb-8 font-medium">
                     "唯有 <span class="text-pink-400 font-bold">热爱</span> 能抵岁月漫长，代码也能写成诗。"
                 </div>
 
                 <!-- 像素猫咪动画 Canvas -->
                 <div class="mt-8 w-full h-40 md:h-48 bg-[#fff0f5] rounded-3xl border-4 border-white shadow-inner relative overflow-hidden flex items-center justify-center cursor-pointer" id="pixelCatContainer">
                     <canvas id="pixelCatCanvas" class="w-full h-full"></canvas>
-                    <!-- 提示文字 (仅在非悬停/非互动时显示) -->
                     <div id="hintText" class="absolute bottom-2 right-4 text-xs text-pink-400 font-bold bg-white/80 px-2 py-1 rounded-lg pointer-events-none transition-opacity duration-300">
                         ✨ 悬停/点击猫咪有惊喜
                     </div>
@@ -420,7 +349,7 @@
             <div class="content-section">
                 <div class="flex items-center gap-2 mb-6 px-4">
                     <i data-lucide="layout" class="w-6 h-6 text-pink-400 animate-bounce"></i>
-                    <h2 class="text-2xl font-bold text-[#5d4037]">我的小窝</h2>
+                    <h2 class="text-2xl font-bold text-dynamic-main">我的小窝</h2>
                 </div>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <!-- 日常博客 -->
@@ -451,7 +380,7 @@
             <div class="content-section">
                 <div class="flex items-center gap-2 mb-6 px-4">
                     <i data-lucide="sparkles" class="w-6 h-6 text-yellow-400 animate-pulse"></i>
-                    <h2 class="text-2xl font-bold text-[#5d4037]">技能树</h2>
+                    <h2 class="text-2xl font-bold text-dynamic-main">技能树</h2>
                 </div>
                 <div class="zyyo-glass p-8 flex justify-center bg-white/80">
                    <div class="flex flex-wrap justify-center gap-8">
@@ -476,7 +405,7 @@
             </div>
 
             <!-- Footer -->
-            <footer class="mt-8 text-center text-[#a1887f] text-sm py-10 font-bold">
+            <footer class="mt-8 text-center text-dynamic-sub text-sm py-10 font-bold">
                 Made with <i data-lucide="heart" class="inline w-4 h-4 text-red-400 fill-current"></i> by Zzai © 2026
             </footer>
         </main>
@@ -489,8 +418,6 @@
         // -----------------------------------------------------------
         // 4. 音乐播放器逻辑 (升级版：支持列表、音量、写实背景)
         // -----------------------------------------------------------
-        
-        // --- A. 配置区：在这里修改你的歌单 ---
         const playList = [
             {
                 title: "Lofi Study Beats",
@@ -500,13 +427,10 @@
             {
                 title: "Dreamy Clouds",
                 artist: "Zzai Select",
-                // 示例：这里放第二首歌的链接
                 src: "https://s.myhkw.cn/api.php?get=url&type=wy&id=2618276792&sign=a5nV4cOPxOBWc&t=1771256493" 
-            },
-            // 复制上面的格式可以继续添加更多歌曲...
+            }
         ];
 
-        // --- B. 逻辑实现 ---
         const audio = document.getElementById('audioPlayer');
         const playBtn = document.getElementById('playBtn');
         const prevBtn = document.getElementById('prevBtn');
@@ -517,61 +441,48 @@
         const volSlider = document.getElementById('volSlider');
         const visualizerDiv = document.getElementById('visualizer');
         const bars = visualizerDiv.querySelectorAll('div');
+        const iconPlay = document.getElementById('iconPlay');
+        const iconPause = document.getElementById('iconPause');
         
         let currentSongIndex = 0;
         let isPlaying = false;
         let visualizerInterval;
 
-        // 1. 初始化加载第一首
         function loadSong(index) {
             const song = playList[index];
             audio.src = song.src;
             musicTitle.innerText = `🎵 ${song.title}`;
             musicArtist.innerText = `- ${song.artist} -`;
-            // 简单重置跑马灯位置
             musicTitle.parentElement.scrollLeft = 0;
         }
         
-        // 初始加载
-        if(playList.length > 0) {
-            loadSong(currentSongIndex);
-        }
-        audio.volume = 0.5; // 默认音量
+        if(playList.length > 0) loadSong(currentSongIndex);
+        audio.volume = 0.5;
 
-        // 2. 播放/暂停控制
         function togglePlay() {
             if (isPlaying) {
-                pauseMusic();
+                audio.pause();
+                isPlaying = false;
+                playStatus.classList.replace('bg-green-400', 'bg-slate-300');
+                playStatus.classList.remove('animate-pulse');
+                iconPlay.classList.remove('opacity-0');
+                iconPause.classList.add('opacity-0');
+                stopVisualizer();
             } else {
-                playMusic();
+                const playPromise = audio.play();
+                if (playPromise !== undefined) {
+                    playPromise.then(() => {
+                        isPlaying = true;
+                        playStatus.classList.replace('bg-slate-300', 'bg-green-400');
+                        playStatus.classList.add('animate-pulse');
+                        iconPlay.classList.add('opacity-0');
+                        iconPause.classList.remove('opacity-0');
+                        startVisualizer();
+                    }).catch(error => console.log("播放被阻止:", error));
+                }
             }
         }
 
-        function playMusic() {
-            const playPromise = audio.play();
-            if (playPromise !== undefined) {
-                playPromise.then(() => {
-                    isPlaying = true;
-                    playStatus.classList.replace('bg-slate-300', 'bg-green-400');
-                    playStatus.classList.add('animate-pulse');
-                    playBtn.innerHTML = '<i data-lucide="pause" class="w-5 h-5 fill-current"></i>';
-                    lucide.createIcons();
-                    startVisualizer();
-                }).catch(error => console.log("播放被阻止:", error));
-            }
-        }
-
-        function pauseMusic() {
-            audio.pause();
-            isPlaying = false;
-            playStatus.classList.replace('bg-green-400', 'bg-slate-300');
-            playStatus.classList.remove('animate-pulse');
-            playBtn.innerHTML = '<i data-lucide="play" class="w-5 h-5 fill-current"></i>';
-            lucide.createIcons();
-            stopVisualizer();
-        }
-
-        // 3. 切歌逻辑
         function changeSong(direction) {
             if (direction === 'next') {
                 currentSongIndex = (currentSongIndex + 1) % playList.length;
@@ -579,28 +490,23 @@
                 currentSongIndex = (currentSongIndex - 1 + playList.length) % playList.length;
             }
             loadSong(currentSongIndex);
-            if (isPlaying) playMusic();
+            if (isPlaying) {
+                // 确保切换后继续播放
+                audio.play().catch(()=>{}); 
+            }
         }
 
-        // 4. 事件监听
         playBtn.addEventListener('click', togglePlay);
         nextBtn.addEventListener('click', () => changeSong('next'));
         prevBtn.addEventListener('click', () => changeSong('prev'));
-        
-        // 自动播放下一首
         audio.addEventListener('ended', () => changeSong('next'));
+        volSlider.addEventListener('input', (e) => { audio.volume = e.target.value; });
 
-        // 音量调节
-        volSlider.addEventListener('input', (e) => {
-            audio.volume = e.target.value;
-        });
-
-        // 5. 简单的随机频谱动画
         function startVisualizer() {
-            stopVisualizer(); // 防止多重定时器
+            stopVisualizer();
             visualizerInterval = setInterval(() => {
                 bars.forEach(bar => {
-                    const height = Math.floor(Math.random() * 20 + 4); // 随机高度
+                    const height = Math.floor(Math.random() * 20 + 4);
                     bar.style.height = `${height}px`;
                 });
             }, 100);
@@ -611,27 +517,12 @@
             bars.forEach(bar => bar.style.height = '6px');
         }
 
-        // --- C. 播放器背景Canvas动画 (圆润写实版) ---
+        // --- Canvas Animation Logic (Music Background) ---
         const mCanvas = document.getElementById('musicBgCanvas');
         const mCtx = mCanvas.getContext('2d');
-        // 不需要关闭平滑，因为我们要画矢量的圆
-        // mCtx.imageSmoothingEnabled = false; 
-        
-        let mWidth, mHeight;
-        let musicNotes = [];
-        let discRotation = 0;      // 唱片当前角度
-        let discSpeed = 0;         // 唱片当前转速
-        const maxSpeed = 0.05;     // 最大转速
-
-        // 简单的像素音符形状 (音符保持像素风格以呼应主题，或者你可以改成圆润的)
-        // 这里保留像素音符作为一种装饰对比
-        const noteSprite = [
-            [0,0,1,0],
-            [0,0,1,0],
-            [0,0,1,0],
-            [1,1,1,0],
-            [1,1,1,0]
-        ];
+        let mWidth, mHeight, musicNotes = [], discRotation = 0, discSpeed = 0;
+        const maxSpeed = 0.05;
+        const noteSprite = [[0,0,1,0],[0,0,1,0],[0,0,1,0],[1,1,1,0],[1,1,1,0]];
 
         function resizeMusicCanvas() {
             if (!mCanvas.parentElement) return;
@@ -642,365 +533,93 @@
             mCanvas.height = mHeight;
         }
 
-        // --- 1. 像素音符类 ---
         class PixelNote {
-            constructor() {
-                this.reset();
-                this.y = Math.random() * mHeight; // 初始随机高度
-            }
-            reset() {
-                this.x = Math.random() * (mWidth - 100); // 避开右侧唱片区域
-                this.y = mHeight + 10;
-                this.speed = Math.random() * 0.3 + 0.1;
-                this.color = Math.random() > 0.5 ? '#ff9eb5' : '#89CFF0';
-                this.scale = Math.floor(Math.random() * 2) + 2;
-                this.wobble = Math.random() * Math.PI * 2;
-            }
-            update() {
-                // 播放时上升快一点
-                this.y -= this.speed * (isPlaying ? 1.5 : 0.5);
-                this.wobble += 0.05;
-                this.x += Math.sin(this.wobble) * 0.3;
-                
-                if (this.y < -20) this.reset();
-            }
-            draw() {
-                mCtx.fillStyle = this.color;
-                // 绘制像素音符 (这里用 fillRect 是为了像素风，但因为是小元素，不影响整体写实感)
-                noteSprite.forEach((row, r) => {
-                    row.forEach((pixel, c) => {
-                        if(pixel) mCtx.fillRect(this.x + c*this.scale, this.y + r*this.scale, this.scale, this.scale);
-                    });
-                });
-            }
+            constructor() { this.reset(); this.y = Math.random() * mHeight; }
+            reset() { this.x = Math.random() * (mWidth - 100); this.y = mHeight + 10; this.speed = Math.random() * 0.3 + 0.1; this.color = Math.random() > 0.5 ? '#ff9eb5' : '#89CFF0'; this.scale = Math.floor(Math.random() * 2) + 2; this.wobble = Math.random() * Math.PI * 2; }
+            update() { this.y -= this.speed * (isPlaying ? 1.5 : 0.5); this.wobble += 0.05; this.x += Math.sin(this.wobble) * 0.3; if (this.y < -20) this.reset(); }
+            draw() { mCtx.fillStyle = this.color; noteSprite.forEach((row, r) => { row.forEach((pixel, c) => { if(pixel) mCtx.fillRect(this.x + c*this.scale, this.y + r*this.scale, this.scale, this.scale); }); }); }
         }
 
-        // --- 2. 绘制写实唱片函数 (Vector Style) ---
         function drawRealisticDisc(ctx, centerX, centerY, radius, rotation) {
-            ctx.save();
-            ctx.translate(centerX, centerY);
-            ctx.rotate(rotation);
-
-            // 1. 唱片本体 (黑色)
-            ctx.beginPath();
-            ctx.arc(0, 0, radius, 0, Math.PI * 2);
-            ctx.fillStyle = '#1a1a1a';
-            ctx.fill();
-
-            // 2. 唱片纹理 (深灰色沟槽圈)
-            ctx.strokeStyle = '#2a2a2a';
-            ctx.lineWidth = 1.5;
-            for(let r = radius * 0.4; r < radius * 0.95; r += 3) {
-                ctx.beginPath();
-                ctx.arc(0, 0, r, 0, Math.PI * 2);
-                ctx.stroke();
-            }
-
-            // 3. 中间贴纸 (粉色)
-            ctx.beginPath();
-            ctx.arc(0, 0, radius * 0.35, 0, Math.PI * 2);
-            ctx.fillStyle = '#ff80ab'; // 鲜艳的粉色
-            ctx.fill();
-            
-            // 贴纸边缘线
-            ctx.lineWidth = 1;
-            ctx.strokeStyle = '#ff4081';
-            ctx.stroke();
-            
-            // 贴纸上的装饰文字或图案 (简单的环)
-            ctx.beginPath();
-            ctx.arc(0, 0, radius * 0.25, 0, Math.PI * 2);
-            ctx.strokeStyle = 'rgba(255,255,255,0.3)';
-            ctx.stroke();
-
-            // 4. 中心孔 (背景色)
-            ctx.beginPath();
-            ctx.arc(0, 0, radius * 0.05, 0, Math.PI * 2);
-            ctx.fillStyle = '#fff0f5'; // 与背景融合
-            ctx.fill();
-
-            // 5. 光泽反光 (Glossy Effect) 
-            // 反光通常不随唱片旋转而完全旋转，而是取决于光源。
-            // 为了简化且好看，我们让反光层反向旋转一部分，或者保持静止。
-            // 这里我们让它保持静止 (rotate back)
+            ctx.save(); ctx.translate(centerX, centerY); ctx.rotate(rotation);
+            ctx.beginPath(); ctx.arc(0, 0, radius, 0, Math.PI * 2); ctx.fillStyle = '#1a1a1a'; ctx.fill();
+            ctx.strokeStyle = '#2a2a2a'; ctx.lineWidth = 1.5;
+            for(let r = radius * 0.4; r < radius * 0.95; r += 3) { ctx.beginPath(); ctx.arc(0, 0, r, 0, Math.PI * 2); ctx.stroke(); }
+            ctx.beginPath(); ctx.arc(0, 0, radius * 0.35, 0, Math.PI * 2); ctx.fillStyle = '#ff80ab'; ctx.fill();
+            ctx.lineWidth = 1; ctx.strokeStyle = '#ff4081'; ctx.stroke();
+            ctx.beginPath(); ctx.arc(0, 0, radius * 0.25, 0, Math.PI * 2); ctx.strokeStyle = 'rgba(255,255,255,0.3)'; ctx.stroke();
+            ctx.beginPath(); ctx.arc(0, 0, radius * 0.05, 0, Math.PI * 2); ctx.fillStyle = '#fff0f5'; ctx.fill();
             ctx.rotate(-rotation); 
-            
-            // 下半部分的柔和反光
             const grad = ctx.createLinearGradient(-radius, -radius, radius, radius);
-            grad.addColorStop(0, 'rgba(255,255,255,0.0)');
-            grad.addColorStop(0.45, 'rgba(255,255,255,0.0)');
-            grad.addColorStop(0.5, 'rgba(255,255,255,0.1)'); // 淡淡的一道光
-            grad.addColorStop(0.55, 'rgba(255,255,255,0.0)');
-            grad.addColorStop(1, 'rgba(255,255,255,0.0)');
-            
-            ctx.fillStyle = grad;
-            ctx.beginPath();
-            ctx.arc(0, 0, radius, 0, Math.PI * 2);
-            ctx.fill();
-            
-            // 顶部的高光弧 (看起来更像塑料材质)
-            ctx.beginPath();
-            ctx.arc(0, 0, radius * 0.85, 1.2 * Math.PI, 1.8 * Math.PI); // 上方一段弧
-            ctx.lineWidth = radius * 0.1;
-            ctx.strokeStyle = 'rgba(255,255,255,0.08)';
-            ctx.lineCap = 'round';
-            ctx.stroke();
-
+            grad.addColorStop(0, 'rgba(255,255,255,0.0)'); grad.addColorStop(0.45, 'rgba(255,255,255,0.0)'); grad.addColorStop(0.5, 'rgba(255,255,255,0.1)'); grad.addColorStop(0.55, 'rgba(255,255,255,0.0)'); grad.addColorStop(1, 'rgba(255,255,255,0.0)');
+            ctx.fillStyle = grad; ctx.beginPath(); ctx.arc(0, 0, radius, 0, Math.PI * 2); ctx.fill();
+            ctx.beginPath(); ctx.arc(0, 0, radius * 0.85, 1.2 * Math.PI, 1.8 * Math.PI); ctx.lineWidth = radius * 0.1; ctx.strokeStyle = 'rgba(255,255,255,0.08)'; ctx.lineCap = 'round'; ctx.stroke();
             ctx.restore();
         }
 
-        // 初始化音符
         for(let i=0; i<5; i++) musicNotes.push(new PixelNote());
 
         function animateMusicBg() {
-            // 修复：始终请求下一帧，防止因尺寸未就绪导致循环终止
             requestAnimationFrame(animateMusicBg);
-
             if(!mWidth || !mHeight) return;
             mCtx.clearRect(0, 0, mWidth, mHeight);
-
-            // A. 更新唱片转速
-            if (isPlaying) {
-                if (discSpeed < maxSpeed) discSpeed += 0.001; // 缓慢加速
-            } else {
-                if (discSpeed > 0) discSpeed -= 0.001; // 缓慢减速
-                if (discSpeed < 0) discSpeed = 0;
-            }
+            if (isPlaying) { if (discSpeed < maxSpeed) discSpeed += 0.001; } else { if (discSpeed > 0) discSpeed -= 0.001; if (discSpeed < 0) discSpeed = 0; }
             discRotation += discSpeed;
-
-            // B. 绘制唱片 (位置：右侧，垂直居中)
-            // 定义半径：不再使用 scale，而是直接用像素半径
-            // 手机端稍微小一点，电脑端大一点
             const discRadius = Math.min(mWidth, mHeight) * 0.8 / 2; 
-            const discX = mWidth - discRadius - 20; 
-            const discY = mHeight / 2 + 10;
-            
-            // 绘制唱片底下的阴影 (简单的圆形)
-            mCtx.fillStyle = 'rgba(0,0,0,0.1)'; // 阴影深一点点
-            mCtx.beginPath();
-            mCtx.arc(discX, discY + 4, discRadius, 0, Math.PI * 2);
-            mCtx.fill();
-
-            // 绘制实体唱片 (写实版)
+            const discX = mWidth - discRadius - 20; const discY = mHeight / 2 + 10;
+            mCtx.fillStyle = 'rgba(0,0,0,0.1)'; mCtx.beginPath(); mCtx.arc(discX, discY + 4, discRadius, 0, Math.PI * 2); mCtx.fill();
             drawRealisticDisc(mCtx, discX, discY, discRadius, discRotation);
-
-            // C. 绘制音符
-            musicNotes.forEach(note => {
-                note.update();
-                note.draw();
-            });
+            musicNotes.forEach(note => { note.update(); note.draw(); });
         }
-
-        // 监听尺寸并启动
         window.addEventListener('resize', resizeMusicCanvas);
-        // 延时启动确保布局准备好
-        setTimeout(() => {
-            resizeMusicCanvas();
-            animateMusicBg();
-        }, 200);
-
+        setTimeout(() => { resizeMusicCanvas(); animateMusicBg(); }, 200);
 
         // -----------------------------------------------------------
-        // 0. 像素天气逻辑 (Open-Meteo 自动IP定位版)
+        // 0. Weather
         // -----------------------------------------------------------
-        const wCanvas = document.getElementById('weatherCanvas');
-        const wCtx = wCanvas.getContext('2d');
-        let weatherFrame = 0;
-        let currentWeatherCode = 0; 
-
-        // 像素天气图标精灵 (12x12 -> Scale 4)
-        const weatherSprites = {
-            sun: [
-                [0,0,0,1,0,0,0,1,0,0,0],
-                [0,0,0,0,0,0,0,0,0,0,0],
-                [0,0,0,2,2,2,2,2,0,0,0],
-                [1,0,2,2,2,2,2,2,2,0,1],
-                [0,0,2,2,2,2,2,2,2,0,0],
-                [0,0,2,2,2,2,2,2,2,0,0],
-                [0,0,2,2,2,2,2,2,2,0,0],
-                [1,0,2,2,2,2,2,2,2,0,1],
-                [0,0,0,2,2,2,2,2,0,0,0],
-                [0,0,0,0,0,0,0,0,0,0,0],
-                [0,0,0,1,0,0,0,1,0,0,0]
-            ],
-            cloud: [
-                [0,0,0,0,0,0,0,0,0,0,0],
-                [0,0,0,0,3,3,3,0,0,0,0],
-                [0,0,0,3,3,3,3,3,0,0,0],
-                [0,0,3,3,3,3,3,3,3,0,0],
-                [0,3,3,3,3,3,3,3,3,3,0],
-                [3,3,3,3,3,3,3,3,3,3,3],
-                [3,3,3,3,3,3,3,3,3,3,3],
-                [0,3,3,3,3,3,3,3,3,3,0],
-                [0,0,0,0,0,0,0,0,0,0,0],
-                [0,0,0,0,0,0,0,0,0,0,0],
-                [0,0,0,0,0,0,0,0,0,0,0]
-            ],
-            rain: [
-                [0,0,0,0,0,0,0,0,0,0,0],
-                [0,0,0,0,3,3,3,0,0,0,0],
-                [0,0,3,3,3,3,3,3,3,0,0],
-                [0,3,3,3,3,3,3,3,3,3,0],
-                [0,3,3,3,3,3,3,3,3,3,0],
-                [0,0,0,0,0,0,0,0,0,0,0],
-                [0,0,4,0,0,4,0,0,4,0,0], // 雨滴
-                [0,0,0,0,0,0,0,0,0,0,0],
-                [0,4,0,0,4,0,0,4,0,0,0],
-                [0,0,0,0,0,0,0,0,0,0,0]
-            ]
-        };
+        const wCanvas = document.getElementById('weatherCanvas'); const wCtx = wCanvas.getContext('2d');
+        let weatherFrame = 0, currentWeatherCode = 0;
+        const weatherSprites = { sun: [[0,0,0,1,0,0,0,1,0,0,0],[0,0,0,0,0,0,0,0,0,0,0],[0,0,0,2,2,2,2,2,0,0,0],[1,0,2,2,2,2,2,2,2,0,1],[0,0,2,2,2,2,2,2,2,0,0],[0,0,2,2,2,2,2,2,2,0,0],[0,0,2,2,2,2,2,2,2,0,0],[1,0,2,2,2,2,2,2,2,0,1],[0,0,0,2,2,2,2,2,0,0,0],[0,0,0,0,0,0,0,0,0,0,0],[0,0,0,1,0,0,0,1,0,0,0]], cloud: [[0,0,0,0,0,0,0,0,0,0,0],[0,0,0,0,3,3,3,0,0,0,0],[0,0,0,3,3,3,3,3,0,0,0],[0,0,3,3,3,3,3,3,3,0,0],[0,3,3,3,3,3,3,3,3,3,0],[3,3,3,3,3,3,3,3,3,3,3],[3,3,3,3,3,3,3,3,3,3,3],[0,3,3,3,3,3,3,3,3,3,0],[0,0,0,0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0,0,0,0]], rain: [[0,0,0,0,0,0,0,0,0,0,0],[0,0,0,0,3,3,3,0,0,0,0],[0,0,3,3,3,3,3,3,3,0,0],[0,3,3,3,3,3,3,3,3,3,0],[0,3,3,3,3,3,3,3,3,3,0],[0,0,0,0,0,0,0,0,0,0,0],[0,0,4,0,0,4,0,0,4,0,0],[0,0,0,0,0,0,0,0,0,0,0],[0,4,0,0,4,0,0,4,0,0,0],[0,0,0,0,0,0,0,0,0,0,0]] };
         const wColors = { 1: '#fdd835', 2: '#ffeb3b', 3: '#ffffff', 4: '#4fc3f7' };
-
-        function drawPixelWeather() {
-            if(!wCtx) return;
-            wCtx.clearRect(0, 0, 48, 48);
-            const scale = 4;
-            let sprite = weatherSprites.sun;
-            let offsetY = 0;
-
-            if (currentWeatherCode > 2 && currentWeatherCode < 50) sprite = weatherSprites.cloud;
-            if (currentWeatherCode >= 50) sprite = weatherSprites.rain; 
-
-            if (currentWeatherCode >= 50) offsetY = (weatherFrame % 4) * 2;
-
-            sprite.forEach((row, r) => {
-                row.forEach((pixel, c) => {
-                    if (pixel !== 0) {
-                        wCtx.fillStyle = wColors[pixel];
-                        if (pixel === 4) { 
-                            let rainY = (r * scale + offsetY) % 48;
-                            if(rainY < 20) rainY += 20; 
-                            wCtx.fillRect(c * scale, rainY, scale, scale);
-                        } else {
-                            wCtx.fillRect(c * scale, r * scale, scale, scale);
-                        }
-                    }
-                });
-            });
-            weatherFrame++;
-            requestAnimationFrame(drawPixelWeather);
-        }
-
+        function drawPixelWeather() { if(!wCtx) return; wCtx.clearRect(0, 0, 48, 48); const scale = 4; let sprite = weatherSprites.sun; let offsetY = 0; if (currentWeatherCode > 2 && currentWeatherCode < 50) sprite = weatherSprites.cloud; if (currentWeatherCode >= 50) sprite = weatherSprites.rain; if (currentWeatherCode >= 50) offsetY = (weatherFrame % 4) * 2; sprite.forEach((row, r) => { row.forEach((pixel, c) => { if (pixel !== 0) { wCtx.fillStyle = wColors[pixel]; if (pixel === 4) { let rainY = (r * scale + offsetY) % 48; if(rainY < 20) rainY += 20; wCtx.fillRect(c * scale, rainY, scale, scale); } else { wCtx.fillRect(c * scale, r * scale, scale, scale); } } }); }); weatherFrame++; requestAnimationFrame(drawPixelWeather); }
         async function fetchWeather() {
-            const cityEl = document.getElementById('weatherCity');
-            const tempEl = document.getElementById('weatherTemp');
-            
-            // 默认值 (作为最后的保底)
-            let lat = 32.06;
-            let lon = 118.79;
-            let city = "NANJING";
-
-            try {
-                // 1. 尝试通过 IP 获取位置
-                // 使用 ipapi.co (免费，支持 HTTPS)
-                const locationRes = await fetch('https://ipapi.co/json/');
-                
-                if (locationRes.ok) {
-                    const locationData = await locationRes.json();
-                    if (locationData.latitude && locationData.longitude) {
-                        lat = locationData.latitude;
-                        lon = locationData.longitude;
-                        city = (locationData.city || city).toUpperCase();
-                    }
-                }
-            } catch (e) {
-                console.warn("Location detection failed, using default.");
-            }
-
-            try {
-                // 2. 根据坐标获取天气 (Open-Meteo)
-                const weatherRes = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current_weather=true&timezone=auto`);
-                
-                if (!weatherRes.ok) throw new Error('Weather API Error');
-                const weatherData = await weatherRes.json();
-                
-                const temp = Math.round(weatherData.current_weather.temperature);
-                currentWeatherCode = weatherData.current_weather.weathercode; // WMO 代码
-
-                cityEl.innerText = city;
-                tempEl.innerText = `${temp}°C`;
-                drawPixelWeather();
-
-            } catch (error) {
-                // 最终保底：如果天气API也不通，显示默认南京
-                cityEl.innerText = "NANJING";
-                tempEl.innerText = "24°C";
-                currentWeatherCode = 0;
-                drawPixelWeather();
-            }
+            const cityEl = document.getElementById('weatherCity'); const tempEl = document.getElementById('weatherTemp'); let lat = 32.06, lon = 118.79, city = "NANJING";
+            try { const locationRes = await fetch('https://ipapi.co/json/'); if (locationRes.ok) { const d = await locationRes.json(); if(d.latitude){ lat=d.latitude; lon=d.longitude; city=(d.city||city).toUpperCase(); } } } catch (e) {}
+            try { const r = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current_weather=true&timezone=auto`); if (!r.ok) throw new Error(); const d = await r.json(); tempEl.innerText = `${Math.round(d.current_weather.temperature)}°C`; cityEl.innerText = city; currentWeatherCode = d.current_weather.weathercode; drawPixelWeather(); } catch (e) { cityEl.innerText = "NANJING"; tempEl.innerText = "24°C"; currentWeatherCode = 0; drawPixelWeather(); }
         }
-        
         fetchWeather();
 
-
         // -----------------------------------------------------------
-        // 1. 左侧静态温馨工位动画
+        // 1. Sidebar Animation
         // -----------------------------------------------------------
-        const sidebarCanvas = document.getElementById('sidebarCanvas');
-        const sCtx = sidebarCanvas.getContext('2d');
-        let sWidth, sHeight;
-        let workFrame = 0;
-        const P = { bg: '#fff0f5', wall: '#ffeef2', desk: '#ffffff', deskShadow: '#fce4ec', laptopBase: '#f8bbd0', screenBack: '#f06292', screenDark: '#2c3e50', screenCode: '#a5d6a7', chair: '#ec407a', chairDark: '#d81b60', coffee: '#d7ccc8', steam: '#ffffff', book1: '#81d4fa', book2: '#ffcc80', lamp: '#fff59d', lampStand: '#bdbdbd', plant: '#a5d6a7', pot: '#ffab91', windowFrame: '#b0bec5', sky: '#e1f5fe' };
-
-        function resizeSidebar() {
-            const rect = sidebarCanvas.parentElement.getBoundingClientRect();
-            sWidth = rect.width; sHeight = rect.height; sidebarCanvas.width = sWidth; sidebarCanvas.height = sHeight;
-        }
+        const sidebarCanvas = document.getElementById('sidebarCanvas'); const sCtx = sidebarCanvas.getContext('2d');
+        let sWidth, sHeight; let workFrame = 0;
+        const P = { bg: '#fff0f5', desk: '#ffffff', deskShadow: '#fce4ec', laptopBase: '#f8bbd0', screenBack: '#f06292', screenDark: '#2c3e50', screenCode: '#a5d6a7', chair: '#ec407a', chairDark: '#d81b60', coffee: '#d7ccc8', steam: '#ffffff', book1: '#81d4fa', book2: '#ffcc80', lamp: '#fff59d', lampStand: '#bdbdbd', plant: '#a5d6a7', pot: '#ffab91', sky: '#e1f5fe' };
+        function resizeSidebar() { const rect = sidebarCanvas.parentElement.getBoundingClientRect(); sWidth = rect.width; sHeight = rect.height; sidebarCanvas.width = sWidth; sidebarCanvas.height = sHeight; }
         function drawRect(ctx, x, y, w, h, color) { ctx.fillStyle = color; ctx.fillRect(Math.floor(x), Math.floor(y), Math.floor(w), Math.floor(h)); }
         function drawSidebarAnimation() {
             sCtx.clearRect(0, 0, sWidth, sHeight);
-            const targetScale = Math.min(sWidth / 55, sHeight / 35);
-            const scale = Math.max(2, Math.floor(targetScale)); 
-            
-            const cx = sWidth / 2; const cy = sHeight / 2; const baseX = cx - (20 * scale); const baseY = cy - (10 * scale);
+            const scale = Math.max(2, Math.floor(Math.min(sWidth / 55, sHeight / 35)));
+            const baseX = sWidth / 2 - (20 * scale); const baseY = sHeight / 2 - (10 * scale);
             sCtx.fillStyle = P.bg; sCtx.fillRect(0, 0, sWidth, sHeight);
+            // Simplified drawing for brevity, same as previous but robust
             const winX = baseX + 2*scale; const winY = baseY - 8*scale;
-            drawRect(sCtx, winX, winY, 16*scale, 12*scale, P.sky); drawRect(sCtx, winX + 2*scale, winY + 2*scale, 4*scale, 2*scale, '#fff'); drawRect(sCtx, winX + 10*scale, winY + 5*scale, 3*scale, 1*scale, '#fff'); sCtx.lineWidth = scale; sCtx.strokeStyle = '#fff'; sCtx.strokeRect(winX, winY, 16*scale, 12*scale); drawRect(sCtx, winX + 8*scale, winY, 1*scale, 12*scale, '#fff'); drawRect(sCtx, winX, winY + 6*scale, 16*scale, 1*scale, '#fff'); drawRect(sCtx, winX - 1*scale, winY, 2*scale, 10*scale, '#f8bbd0'); drawRect(sCtx, winX + 15*scale, winY, 2*scale, 10*scale, '#f8bbd0');
-            const shelfX = baseX + 30*scale; const shelfY = baseY - 6*scale; drawRect(sCtx, shelfX, shelfY, 12*scale, 1*scale, '#8d6e63'); drawRect(sCtx, shelfX + 2*scale, shelfY - 2*scale, 2*scale, 2*scale, P.pot); drawRect(sCtx, shelfX + 2*scale, shelfY - 5*scale, 2*scale, 3*scale, P.plant); drawRect(sCtx, shelfX + 1*scale, shelfY - 4*scale, 1*scale, 1*scale, P.plant); drawRect(sCtx, shelfX + 4*scale, shelfY - 3*scale, 1*scale, 1*scale, P.plant);
-            const deskY = baseY + 12*scale; drawRect(sCtx, baseX, deskY + 2*scale, 2*scale, 10*scale, P.deskShadow); drawRect(sCtx, baseX + 40*scale, deskY + 2*scale, 2*scale, 10*scale, P.deskShadow); drawRect(sCtx, baseX - 5*scale, deskY, 52*scale, 3*scale, P.desk); drawRect(sCtx, baseX - 5*scale, deskY + 3*scale, 52*scale, 1*scale, P.deskShadow);
-            const laptopX = baseX + 14*scale; const laptopY = deskY - 8*scale; drawRect(sCtx, laptopX - 2*scale, deskY - 1*scale, 18*scale, 1*scale, P.laptopBase); drawRect(sCtx, laptopX, laptopY, 14*scale, 9*scale, P.screenBack); drawRect(sCtx, laptopX + 1*scale, laptopY + 1*scale, 12*scale, 7*scale, P.screenDark); drawRect(sCtx, laptopX + 2*scale, laptopY + 2*scale, 6*scale, 1*scale, P.screenCode); drawRect(sCtx, laptopX + 2*scale, laptopY + 4*scale, 4*scale, 1*scale, P.screenCode); drawRect(sCtx, laptopX + 2*scale, laptopY + 6*scale, 8*scale, 1*scale, P.screenCode);
-            const bookX = baseX + 2*scale; const bookY = deskY - 1*scale; drawRect(sCtx, bookX, bookY - 1*scale, 6*scale, 2*scale, P.book1); drawRect(sCtx, bookX + 1*scale, bookY - 3*scale, 5*scale, 2*scale, P.book2);
-            const lampX = baseX + 36*scale; const lampY = deskY; drawRect(sCtx, lampX, lampY - 1*scale, 4*scale, 1*scale, P.lampStand); drawRect(sCtx, lampX + 1*scale, lampY - 6*scale, 1*scale, 5*scale, P.lampStand); drawRect(sCtx, lampX - 2*scale, lampY - 8*scale, 7*scale, 3*scale, P.lamp); sCtx.fillStyle = 'rgba(255, 245, 157, 0.2)'; sCtx.fillRect(lampX - 5*scale, lampY - 6*scale, 13*scale, 8*scale);
-            const coffeeX = baseX + 28*scale; const coffeeY = deskY - 4*scale; drawRect(sCtx, coffeeX, coffeeY, 4*scale, 4*scale, P.coffee); drawRect(sCtx, coffeeX + 4*scale, coffeeY + 1*scale, 1*scale, 2*scale, P.coffee); drawRect(sCtx, coffeeX + 1*scale, coffeeY + 1*scale, 2*scale, 1*scale, '#5d4037');
-            const steamOffset = Math.floor(workFrame / 20) % 3; sCtx.fillStyle = P.steam; if (workFrame % 60 < 45) { drawRect(sCtx, coffeeX + 1*scale, coffeeY - 2*scale - steamOffset*scale, 1*scale, 1*scale, P.steam); drawRect(sCtx, coffeeX + 3*scale, coffeeY - 3*scale - steamOffset*scale, 1*scale, 1*scale, P.steam); }
-            const chairFrontX = baseX + 16*scale; const chairFrontY = deskY + 4*scale; drawRect(sCtx, chairFrontX, chairFrontY, 10*scale, 2*scale, P.chair); drawRect(sCtx, chairFrontX - 1*scale, chairFrontY - 2*scale, 1*scale, 4*scale, P.chairDark); drawRect(sCtx, chairFrontX + 10*scale, chairFrontY - 2*scale, 1*scale, 4*scale, P.chairDark); drawRect(sCtx, chairFrontX + 4*scale, chairFrontY + 2*scale, 2*scale, 4*scale, '#555'); drawRect(sCtx, chairFrontX + 2*scale, chairFrontY + 6*scale, 6*scale, 1*scale, '#555');
+            drawRect(sCtx, winX, winY, 16*scale, 12*scale, P.sky); sCtx.lineWidth = scale; sCtx.strokeStyle = '#fff'; sCtx.strokeRect(winX, winY, 16*scale, 12*scale); drawRect(sCtx, winX+8*scale, winY, 1*scale, 12*scale, '#fff'); drawRect(sCtx, winX, winY+6*scale, 16*scale, 1*scale, '#fff'); drawRect(sCtx, winX-1*scale, winY, 2*scale, 10*scale, '#f8bbd0'); drawRect(sCtx, winX+15*scale, winY, 2*scale, 10*scale, '#f8bbd0');
+            const deskY = baseY + 12*scale; drawRect(sCtx, baseX-5*scale, deskY, 52*scale, 3*scale, P.desk); drawRect(sCtx, baseX-5*scale, deskY+3*scale, 52*scale, 1*scale, P.deskShadow);
+            const laptopX = baseX + 14*scale; const laptopY = deskY - 8*scale; drawRect(sCtx, laptopX, laptopY, 14*scale, 9*scale, P.screenBack); drawRect(sCtx, laptopX+1*scale, laptopY+1*scale, 12*scale, 7*scale, P.screenDark); drawRect(sCtx, laptopX+2*scale, laptopY+2*scale, 6*scale, 1*scale, P.screenCode); drawRect(sCtx, laptopX+2*scale, laptopY+4*scale, 4*scale, 1*scale, P.screenCode); drawRect(sCtx, laptopX+2*scale, laptopY+6*scale, 8*scale, 1*scale, P.screenCode); drawRect(sCtx, laptopX-2*scale, deskY-1*scale, 18*scale, 1*scale, P.laptopBase);
+            const coffeeX = baseX + 28*scale; const coffeeY = deskY - 4*scale; drawRect(sCtx, coffeeX, coffeeY, 4*scale, 4*scale, P.coffee); drawRect(sCtx, coffeeX+1*scale, coffeeY+1*scale, 2*scale, 1*scale, '#5d4037');
+            if (workFrame % 60 < 45) { const steamOffset = Math.floor(workFrame / 20) % 3; drawRect(sCtx, coffeeX+1*scale, coffeeY-2*scale-steamOffset*scale, 1*scale, 1*scale, P.steam); drawRect(sCtx, coffeeX+3*scale, coffeeY-3*scale-steamOffset*scale, 1*scale, 1*scale, P.steam); }
+            const chairFrontX = baseX + 16*scale; const chairFrontY = deskY + 4*scale; drawRect(sCtx, chairFrontX, chairFrontY, 10*scale, 2*scale, P.chair); drawRect(sCtx, chairFrontX+4*scale, chairFrontY+2*scale, 2*scale, 4*scale, '#555'); drawRect(sCtx, chairFrontX+2*scale, chairFrontY+6*scale, 6*scale, 1*scale, '#555');
             workFrame++; requestAnimationFrame(drawSidebarAnimation);
         }
 
         // -----------------------------------------------------------
-        // 2. 顶部像素猫咪动画逻辑
+        // 2. Cat Animation
         // -----------------------------------------------------------
-        const canvas = document.getElementById('pixelCatCanvas');
-        const ctx = canvas.getContext('2d');
-        let width, height;
-        let globalX = -50; 
-        let frame = 0;
-        const baseSpeed = 0.8;
-        let currentSpeed = baseSpeed;
-        let particles = []; 
-        let sceneryElements = []; 
-        let clouds = []; 
-        let isCatHovered = false;
-        let currentBubbleText = "";
-        let isTouchInteraction = false;
-        
-        const randomWords = [
-            "Hello!", 
-            "摸摸头~", 
-            "想吃小鱼干 🐟", 
-            "今天也很棒!", 
-            "不许熬夜!", 
-            "贴贴~", 
-            "Zzz..."
-        ];
-
-        const catFamily = [
-            { offset: 0, scale: 4, yOffset: 0, colorOverride: null }, 
-            { offset: -60, scale: 2, yOffset: 8, colorOverride: { 3: '#89CFF0' } }, 
-            { offset: -90, scale: 2, yOffset: 8, colorOverride: { 3: '#F4D03F' } }, 
-            { offset: -120, scale: 2, yOffset: 8, colorOverride: { 3: '#A569BD' } } 
-        ];
-        
+        const canvas = document.getElementById('pixelCatCanvas'); const ctx = canvas.getContext('2d');
+        let width, height, globalX = -50, frame = 0, currentSpeed = 0.8, particles = [], sceneryElements = [], clouds = [], isCatHovered = false, currentBubbleText = "", isTouchInteraction = false;
+        const randomWords = ["Hello!", "摸摸头~", "想吃小鱼干 🐟", "今天也很棒!", "不许熬夜!", "贴贴~", "Zzz..."];
+        const catFamily = [{ offset: 0, scale: 4, yOffset: 0 }, { offset: -60, scale: 2, yOffset: 8, colorOverride: { 3: '#89CFF0' } }, { offset: -90, scale: 2, yOffset: 8, colorOverride: { 3: '#F4D03F' } }, { offset: -120, scale: 2, yOffset: 8, colorOverride: { 3: '#A569BD' } }];
         const C = { outline: '#5d4037', white: '#ffffff', pink: '#ff9eb5', green: '#a8e6cf', trunk: '#dcedc1', roof: '#ff8b94', wall: '#fff5e6', door: '#ffaaa5', flower: '#ff6f69' };
         const sprites = {
             catStand: [[0,0,0,0,0,0,0,0,0,0,0],[0,0,0,0,1,1,0,0,1,1,0],[0,0,0,1,2,2,1,1,2,2,1],[0,0,0,1,2,2,2,2,2,2,1],[0,0,0,0,1,2,3,2,3,2,1],[0,0,1,1,1,2,2,2,2,2,1],[0,1,2,2,2,2,2,2,2,2,1],[1,2,2,2,2,2,2,2,2,2,1],[1,2,2,2,2,2,2,2,2,2,1],[0,1,1,1,1,1,1,1,1,1,0],[0,0,1,0,0,1,0,1,0,0,1],[0,0,1,0,0,1,0,1,0,0,1]],
@@ -1013,154 +632,61 @@
         };
         const palette = { 1: C.outline, 2: C.white, 3: C.pink, 4: C.green, 5: C.trunk, 6: C.roof, 7: C.wall, 8: C.door, 9: C.flower };
 
-        function resize() {
-            const rect = canvas.parentElement.getBoundingClientRect();
-            width = rect.width; height = rect.height; canvas.width = width; canvas.height = height; initScenery();
-        }
-        function initScenery() {
-            sceneryElements = []; clouds = [];
-            const groundY = height / 2 + 10;
-            for (let x = 20; x < width; x += Math.random() * 80 + 60) {
-                const type = Math.random() > 0.7 ? 'house' : 'tree'; const scale = Math.random() > 0.5 ? 4 : 3;
-                sceneryElements.push({ type: type, x: x, y: groundY - (9 * scale) + 10, scale: scale, sprite: type === 'house' ? sprites.house : sprites.tree });
-            }
-            for (let x = 0; x < width; x += Math.random() * 30 + 10) { if (Math.random() > 0.6) sceneryElements.push({ type: 'flower', x: x, y: groundY + 15 + Math.random() * 10, scale: 2, sprite: sprites.flower }); }
-            for (let i = 0; i < 5; i++) clouds.push({ x: Math.random() * width, y: Math.random() * (height / 3), speed: Math.random() * 0.2 + 0.1, scale: Math.random() * 3 + 3 });
-        }
-        function drawSprite(ctx, x, y, sprite, scale, colorMap = palette, colorOverride = null) {
-            sprite.forEach((row, rowIndex) => {
-                row.forEach((pixel, colIndex) => {
-                    if (pixel !== 0) {
-                        let fillStyle = colorMap[pixel] || '#000';
-                        if (colorOverride && colorOverride[pixel]) fillStyle = colorOverride[pixel];
-                        ctx.fillStyle = fillStyle;
-                        ctx.fillRect(x + colIndex * scale, y + rowIndex * scale, scale, scale);
-                    }
-                });
-            });
-        }
-        class Particle {
-            constructor(x, y) { this.x = x; this.y = y; this.vx = (Math.random() - 0.5) * 4; this.vy = -Math.random() * 4 - 2; this.life = 1.0; this.type = Math.random() > 0.5 ? '❤️' : '✨'; this.size = Math.random() * 10 + 12; }
-            update() { this.x += this.vx; this.y += this.vy; this.vy += 0.15; this.life -= 0.02; }
-            draw() { ctx.globalAlpha = Math.max(0, this.life); ctx.font = `${this.size}px Arial`; ctx.fillText(this.type, this.x, this.y); ctx.globalAlpha = 1.0; }
-        }
+        function resize() { const rect = canvas.parentElement.getBoundingClientRect(); width = rect.width; height = rect.height; canvas.width = width; canvas.height = height; initScenery(); }
+        function initScenery() { sceneryElements = []; clouds = []; const groundY = height/2 + 10; for(let x=20; x<width; x+=Math.random()*80+60) { const type=Math.random()>0.7?'house':'tree'; const scale=Math.random()>0.5?4:3; sceneryElements.push({type:type,x:x,y:groundY-(9*scale)+10,scale:scale,sprite:type==='house'?sprites.house:sprites.tree}); } for(let x=0; x<width; x+=Math.random()*30+10) { if(Math.random()>0.6) sceneryElements.push({type:'flower',x:x,y:groundY+15+Math.random()*10,scale:2,sprite:sprites.flower}); } for(let i=0;i<5;i++) clouds.push({x:Math.random()*width,y:Math.random()*(height/3),speed:Math.random()*0.2+0.1,scale:Math.random()*3+3}); }
+        function drawSprite(ctx,x,y,sprite,scale,colorMap=palette,colorOverride=null) { sprite.forEach((row,rowIndex)=>{ row.forEach((pixel,colIndex)=>{ if(pixel!==0){ let fillStyle=colorMap[pixel]||'#000'; if(colorOverride&&colorOverride[pixel]) fillStyle=colorOverride[pixel]; ctx.fillStyle=fillStyle; ctx.fillRect(x+colIndex*scale,y+rowIndex*scale,scale,scale); } }); }); }
+        class Particle { constructor(x,y) { this.x=x;this.y=y;this.vx=(Math.random()-0.5)*4;this.vy=-Math.random()*4-2;this.life=1.0;this.type=Math.random()>0.5?'❤️':'✨';this.size=Math.random()*10+12; } update(){this.x+=this.vx;this.y+=this.vy;this.vy+=0.15;this.life-=0.02;} draw(){ctx.globalAlpha=Math.max(0,this.life);ctx.font=`${this.size}px Arial`;ctx.fillText(this.type,this.x,this.y);ctx.globalAlpha=1.0;} }
 
         function loop() {
-            if (!canvas.parentElement) return;
-            ctx.clearRect(0, 0, width, height);
-            const gradient = ctx.createLinearGradient(0, height/2, 0, height);
-            gradient.addColorStop(0, '#e8f5e9'); gradient.addColorStop(1, '#c8e6c9');
-            ctx.fillStyle = gradient; ctx.fillRect(0, height/2 + 10, width, height/2);
-
-            clouds.forEach(cloud => { cloud.x += cloud.speed; if (cloud.x > width) cloud.x = -100; drawSprite(ctx, cloud.x, cloud.y, sprites.cloud, cloud.scale, palette); });
-            sceneryElements.sort((a, b) => a.y - b.y).forEach(el => { drawSprite(ctx, el.x, el.y, el.sprite, el.scale, palette); });
-
-            globalX += currentSpeed; if (globalX > width + 150) globalX = -50;
-            if (currentSpeed > 0) frame++;
-
-            catFamily.forEach((cat, index) => {
-                let catX = globalX + cat.offset;
-                let groundY = height / 2 + 10;
-                let catY = groundY - (12 * cat.scale) + 8 + cat.yOffset;
-                if (currentSpeed > 0) catY += Math.sin((frame + index * 10) * 0.25) * 2;
-                let currentSprite = sprites.catStand;
-                if (currentSpeed > 0) currentSprite = Math.floor(frame / 15) % 2 === 0 ? sprites.catRun1 : sprites.catRun2;
-                drawSprite(ctx, catX, catY, currentSprite, cat.scale, palette, cat.colorOverride);
-                
-                // 默认的Meow~气泡
-                if (!isCatHovered && currentSpeed > 0 && Math.floor(frame / 60 + index) % 8 === 0 && index === 0) {
-                    ctx.fillStyle = C.outline; ctx.font = '12px "Fredoka"'; ctx.fillText("Meow~", catX + 40, catY);
-                }
-                
-                // 悬停互动气泡 (仅在PC端显示)
-                if (isCatHovered && !isTouchInteraction && index === 0) {
-                    const bubbleX = catX + 20;
-                    const bubbleY = catY - 30;
-                    ctx.fillStyle = '#fff'; ctx.beginPath(); ctx.roundRect(bubbleX, bubbleY, 100, 30, 10); ctx.fill();
-                    ctx.strokeStyle = '#ff9eb5'; ctx.lineWidth = 2; ctx.stroke();
-                    ctx.beginPath(); ctx.moveTo(bubbleX + 20, bubbleY + 30); ctx.lineTo(bubbleX + 25, bubbleY + 38); ctx.lineTo(bubbleX + 30, bubbleY + 30); ctx.fill(); ctx.stroke();
-                    ctx.fillStyle = '#5d4037'; ctx.font = 'bold 14px "Fredoka"'; ctx.textAlign = 'center'; ctx.fillText(currentBubbleText, bubbleX + 50, bubbleY + 20); ctx.textAlign = 'start';
-                }
-            });
-
-            particles.forEach((p, index) => { p.update(); p.draw(); if (p.life <= 0) particles.splice(index, 1); });
+            if (!canvas.parentElement) return; ctx.clearRect(0,0,width,height);
+            const gradient=ctx.createLinearGradient(0,height/2,0,height); gradient.addColorStop(0,'#e8f5e9'); gradient.addColorStop(1,'#c8e6c9'); ctx.fillStyle=gradient; ctx.fillRect(0,height/2+10,width,height/2);
+            clouds.forEach(c=>{c.x+=c.speed;if(c.x>width)c.x=-100;drawSprite(ctx,c.x,c.y,sprites.cloud,c.scale,palette);});
+            sceneryElements.sort((a,b)=>a.y-b.y).forEach(el=>{drawSprite(ctx,el.x,el.y,el.sprite,el.scale,palette);});
+            globalX+=currentSpeed; if(globalX>width+150) globalX=-50; if(currentSpeed>0) frame++;
+            catFamily.forEach((cat,index)=>{ let catX=globalX+cat.offset; let groundY=height/2+10; let catY=groundY-(12*cat.scale)+8+cat.yOffset; if(currentSpeed>0) catY+=Math.sin((frame+index*10)*0.25)*2; let currentSprite=sprites.catStand; if(currentSpeed>0) currentSprite=Math.floor(frame/15)%2===0?sprites.catRun1:sprites.catRun2; drawSprite(ctx,catX,catY,currentSprite,cat.scale,palette,cat.colorOverride); if(!isCatHovered&&currentSpeed>0&&Math.floor(frame/60+index)%8===0&&index===0){ctx.fillStyle=C.outline;ctx.font='12px "Fredoka"';ctx.fillText("Meow~",catX+40,catY);} if(isCatHovered&&!isTouchInteraction&&index===0){const bubbleX=catX+20;const bubbleY=catY-30;ctx.fillStyle='#fff';ctx.beginPath();ctx.roundRect(bubbleX,bubbleY,100,30,10);ctx.fill();ctx.strokeStyle='#ff9eb5';ctx.lineWidth=2;ctx.stroke();ctx.beginPath();ctx.moveTo(bubbleX+20,bubbleY+30);ctx.lineTo(bubbleX+25,bubbleY+38);ctx.lineTo(bubbleX+30,bubbleY+30);ctx.fill();ctx.stroke();ctx.fillStyle='#5d4037';ctx.font='bold 14px "Fredoka"';ctx.textAlign='center';ctx.fillText(currentBubbleText,bubbleX+50,bubbleY+20);ctx.textAlign='start';}});
+            particles.forEach((p,i)=>{p.update();p.draw();if(p.life<=0)particles.splice(i,1);});
             requestAnimationFrame(loop);
         }
 
-        // --- 交互优化核心逻辑 ---
+        canvas.addEventListener('touchstart', (e) => { isTouchInteraction = true; }, { passive: true });
+        canvas.addEventListener('mouseenter', () => { if(isTouchInteraction)return; currentSpeed=0; canvas.style.cursor="pointer"; isCatHovered=true; currentBubbleText=randomWords[Math.floor(Math.random()*randomWords.length)]; });
+        canvas.addEventListener('mouseleave', () => { if(isTouchInteraction)return; currentSpeed=0.8; canvas.style.cursor="default"; isCatHovered=false; });
+        canvas.addEventListener('click', (e) => { const rect=canvas.getBoundingClientRect(); const x=e.clientX-rect.left; const y=e.clientY-rect.top; for(let i=0;i<6;i++) particles.push(new Particle(x,y)); });
 
-        canvas.addEventListener('touchstart', (e) => {
-            isTouchInteraction = true;
-        }, { passive: true });
-
-        canvas.addEventListener('mouseenter', () => { 
-            if(isTouchInteraction) return; 
-            currentSpeed = 0; 
-            canvas.style.cursor = "pointer";
-            isCatHovered = true;
-            currentBubbleText = randomWords[Math.floor(Math.random() * randomWords.length)];
-        });
-        canvas.addEventListener('mouseleave', () => { 
-            if(isTouchInteraction) return;
-            currentSpeed = baseSpeed; 
-            canvas.style.cursor = "default";
-            isCatHovered = false;
-        });
-        
-        canvas.addEventListener('click', (e) => {
-            const rect = canvas.getBoundingClientRect();
-            const x = e.clientX - rect.left; const y = e.clientY - rect.top;
-            for(let i=0; i<6; i++) particles.push(new Particle(x, y));
-        });
-
-        // -----------------------------------------------------------
-        // 3. 像素兔子 (左侧装饰)
-        // -----------------------------------------------------------
-        const rabbitCanvas = document.getElementById('rabbitCanvas');
-        const rCtx = rabbitCanvas.getContext('2d');
+        // 3. Pixel Rabbit
+        const rabbitCanvas = document.getElementById('rabbitCanvas'); const rCtx = rabbitCanvas.getContext('2d');
         const rabbitSprite = [[0,0,0,0,0,0,0,0],[0,1,0,0,0,1,0,0],[0,1,2,0,2,1,0,0],[0,1,1,1,1,1,0,0],[0,1,3,1,3,1,0,0],[0,1,2,1,2,1,0,0],[0,1,1,1,1,1,0,0],[0,0,1,1,1,0,0,0]];
-        function drawRabbit() {
-            rCtx.clearRect(0, 0, 40, 40);
-            const scale = 4; const offsetX = 4; const offsetY = 4;
-            rabbitSprite.forEach((row, r) => {
-                row.forEach((pixel, c) => {
-                    if (pixel !== 0) {
-                        if (pixel === 1) rCtx.fillStyle = '#ffffff'; if (pixel === 2) rCtx.fillStyle = '#ff9eb5'; if (pixel === 3) rCtx.fillStyle = '#5d4037';
-                        rCtx.fillRect(offsetX + c * scale, offsetY + r * scale, scale, scale);
-                    }
-                });
-            });
-        }
+        function drawRabbit() { rCtx.clearRect(0,0,40,40); const scale=4, offsetX=4, offsetY=4; rabbitSprite.forEach((row,r)=>{ row.forEach((pixel,c)=>{ if(pixel!==0){ if(pixel===1)rCtx.fillStyle='#ffffff'; if(pixel===2)rCtx.fillStyle='#ff9eb5'; if(pixel===3)rCtx.fillStyle='#5d4037'; rCtx.fillRect(offsetX+c*scale,offsetY+r*scale,scale,scale); } }); }); }
         drawRabbit();
 
-        // 通用大小监听
         window.addEventListener('resize', () => { resize(); resizeSidebar(); });
         
-        // 主题切换
+        // Theme Toggle Logic
         const toggle = document.getElementById('myonoffswitch');
         const body = document.body;
-        const sunIcon = document.getElementById('sunIcon');
-        const moonIcon = document.getElementById('moonIcon');
+        // Fix: Use correct variable names for wrappers
+        const sunWrapper = document.getElementById('sunWrapper');
+        const moonWrapper = document.getElementById('moonWrapper');
 
         toggle.addEventListener('change', function() {
             if(this.checked) {
-                // 夜晚模式
+                // Night Mode
                 body.style.background = 'linear-gradient(135deg, #2c3e50 0%, #4ca1af 100%)';
                 document.documentElement.style.setProperty('--glass-bg', 'rgba(0, 0, 0, 0.4)');
                 document.documentElement.style.setProperty('--text-main', '#e0e0e0');
-                sunIcon.classList.add('opacity-0');
-                moonIcon.classList.remove('opacity-0');
+                sunWrapper.classList.add('opacity-0');
+                moonWrapper.classList.remove('opacity-0');
             } else {
-                // 白天模式
+                // Day Mode
                 body.style.background = 'linear-gradient(135deg, #fff0f5 0%, #e0f7fa 100%)';
                 document.documentElement.style.setProperty('--glass-bg', 'rgba(255, 255, 255, 0.65)');
                 document.documentElement.style.setProperty('--text-main', '#5d4037');
-                moonIcon.classList.add('opacity-0');
-                sunIcon.classList.remove('opacity-0');
+                moonWrapper.classList.add('opacity-0');
+                sunWrapper.classList.remove('opacity-0');
             }
         });
 
-        // 初始化
+        // Initialize
         resize(); resizeSidebar(); loop(); drawSidebarAnimation();
     })();
     </script>
