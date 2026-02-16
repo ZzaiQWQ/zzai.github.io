@@ -377,8 +377,8 @@
                                 <button id="nextBtn" class="text-pink-300 hover:text-pink-500 transition hover:translate-x-0.5"><i data-lucide="skip-forward" class="w-5 h-5 fill-current"></i></button>
                             </div>
 
-                            <!-- 音量条 -->
-                            <div class="flex items-center gap-2 flex-1 max-w-[80px]">
+                            <!-- 音量条 (添加 hidden md:flex 类：手机隐藏，中等屏幕以上显示) -->
+                            <div class="hidden md:flex items-center gap-2 flex-1 max-w-[80px]">
                                 <i id="volIcon" data-lucide="volume-2" class="w-3 h-3 text-pink-300"></i>
                                 <input type="range" id="volSlider" min="0" max="1" step="0.05" value="0.5" class="cute-range">
                             </div>
