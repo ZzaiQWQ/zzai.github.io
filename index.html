@@ -369,12 +369,12 @@
         lucide.createIcons();
 
         // -----------------------------------------------------------
-        // 0. 像素天气逻辑 (Open-Meteo Met.no 版 + 像素动画)
+        // 0. 像素天气逻辑 (Open-Meteo 自动IP定位版)
         // -----------------------------------------------------------
         const wCanvas = document.getElementById('weatherCanvas');
         const wCtx = wCanvas.getContext('2d');
         let weatherFrame = 0;
-        let currentWeatherCode = 0; // 默认
+        let currentWeatherCode = 0; 
 
         // 像素天气图标精灵 (12x12 -> Scale 4)
         const weatherSprites = {
@@ -426,16 +426,9 @@
             let sprite = weatherSprites.sun;
             let offsetY = 0;
 
-            // 根据 WMO 代码映射图标
-            // 0: 晴
-            // 1, 2, 3: 多云
-            // 45, 48: 雾 (算多云)
-            // 51+: 雨/雪/雷
-            if (currentWeatherCode === 0) sprite = weatherSprites.sun;
-            else if (currentWeatherCode >= 1 && currentWeatherCode < 50) sprite = weatherSprites.cloud;
-            else if (currentWeatherCode >= 50) sprite = weatherSprites.rain; 
+            if (currentWeatherCode > 2 && currentWeatherCode < 50) sprite = weatherSprites.cloud;
+            if (currentWeatherCode >= 50) sprite = weatherSprites.rain; 
 
-            // 简单动画
             if (currentWeatherCode >= 50) offsetY = (weatherFrame % 4) * 2;
 
             sprite.forEach((row, r) => {
@@ -460,38 +453,46 @@
             const cityEl = document.getElementById('weatherCity');
             const tempEl = document.getElementById('weatherTemp');
             
-            // 固定南京坐标
-            const lat = 32.06;
-            const lon = 118.79;
-            const cityName = "NANJING";
+            // 默认值 (作为最后的保底)
+            let lat = 32.06;
+            let lon = 118.79;
+            let city = "NANJING";
 
             try {
-                // 使用 Open-Meteo (Met.no 数据源) 获取南京实时天气
+                // 1. 尝试通过 IP 获取位置
+                // 使用 ipapi.co (免费，支持 HTTPS)
+                const locationRes = await fetch('https://ipapi.co/json/');
+                
+                if (locationRes.ok) {
+                    const locationData = await locationRes.json();
+                    if (locationData.latitude && locationData.longitude) {
+                        lat = locationData.latitude;
+                        lon = locationData.longitude;
+                        city = (locationData.city || city).toUpperCase();
+                    }
+                }
+            } catch (e) {
+                console.warn("Location detection failed, using default.");
+            }
+
+            try {
+                // 2. 根据坐标获取天气 (Open-Meteo)
                 const weatherRes = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current_weather=true&timezone=auto`);
                 
                 if (!weatherRes.ok) throw new Error('Weather API Error');
                 const weatherData = await weatherRes.json();
                 
                 const temp = Math.round(weatherData.current_weather.temperature);
-                const wmoCode = weatherData.current_weather.weathercode;
+                currentWeatherCode = weatherData.current_weather.weathercode; // WMO 代码
 
-                // 简单的 WMO 代码映射逻辑
-                // 0: Sun
-                // 1,2,3,45,48: Cloud
-                // 51+: Rain
-                if (wmoCode <= 0) currentWeatherCode = 0;
-                else if (wmoCode > 0 && wmoCode < 50) currentWeatherCode = 1;
-                else currentWeatherCode = 2;
-
-                cityEl.innerText = cityName;
+                cityEl.innerText = city;
                 tempEl.innerText = `${temp}°C`;
                 drawPixelWeather();
 
             } catch (error) {
-                console.warn("Weather fetch failed, using fallback.");
-                // 失败回退
-                cityEl.innerText = cityName;
-                tempEl.innerText = "22°C";
+                // 最终保底：如果天气API也不通，显示默认南京
+                cityEl.innerText = "NANJING";
+                tempEl.innerText = "24°C";
                 currentWeatherCode = 0;
                 drawPixelWeather();
             }
