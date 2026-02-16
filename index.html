@@ -41,6 +41,11 @@
             image-rendering: pixelated;
             image-rendering: crisp-edges;
         }
+        
+        /* 音乐播放器背景Canvas不需要像素化处理，要平滑 (因为是写实唱片) */
+        #musicBgCanvas {
+            image-rendering: auto !important; 
+        }
 
         /* 萌系毛玻璃 */
         .zyyo-glass {
@@ -173,8 +178,44 @@
             opacity: 0;
             transform: translateY(10px);
         }
+
+        /* 跑马灯动画 */
+        .animate-marquee {
+            animation: marquee 10s linear infinite;
+            display: inline-block;
+            padding-left: 100%; /* 初始位置在右侧 */
+        }
+        @keyframes marquee {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-100%); }
+        }
         @keyframes fadeIn {
             to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* --- 新增：可爱音量条样式 --- */
+        .cute-range {
+            -webkit-appearance: none;
+            width: 100%;
+            height: 6px;
+            background: #ffe0e9;
+            border-radius: 10px;
+            outline: none;
+        }
+        .cute-range::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 14px;
+            height: 14px;
+            background: #ff80ab;
+            border: 2px solid #fff;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: transform 0.1s;
+            box-shadow: 0 2px 5px rgba(255,128,171, 0.4);
+        }
+        .cute-range::-webkit-slider-thumb:hover {
+            transform: scale(1.2);
         }
     </style>
 </head>
@@ -270,8 +311,8 @@
                     </div>
                 </div>
 
-                <!-- 新增：像素天气小组件 (在兔子下方) -->
-                <div class="w-full bg-[#e3f2fd] rounded-xl border-2 border-white p-3 flex items-center justify-between shadow-sm relative overflow-hidden group hover:shadow-md transition-all">
+                <!-- 像素天气小组件 -->
+                <div class="w-full bg-[#e3f2fd] rounded-xl border-2 border-white p-3 flex items-center justify-between shadow-sm relative overflow-hidden group hover:shadow-md transition-all mb-4">
                     <!-- 左侧：动态像素天气画布 -->
                     <div class="relative w-12 h-12 flex-shrink-0">
                         <canvas id="weatherCanvas" width="48" height="48"></canvas>
@@ -285,6 +326,67 @@
                     
                     <!-- 装饰背景点 -->
                     <div class="absolute -right-4 -bottom-4 w-16 h-16 bg-white/30 rounded-full blur-xl"></div>
+                </div>
+                
+                <!-- 新增：音乐播放器 (升级版) -->
+                <div class="w-full bg-[#fff0f5] border-4 border-white rounded-xl p-4 shadow-inner relative overflow-hidden group z-0">
+                    
+                    <!-- 1. 动态背景 Canvas (黑胶 + 音符) -->
+                    <canvas id="musicBgCanvas" class="absolute inset-0 w-full h-full opacity-50 pointer-events-none z-0"></canvas>
+
+                    <!-- 内容容器 (z-index 确保在背景之上) -->
+                    <div class="relative z-10 flex flex-col gap-3">
+                        
+                        <!-- 顶部：歌名与状态 -->
+                        <div class="flex items-center justify-between">
+                            <div class="flex flex-col overflow-hidden w-40">
+                                <!-- 歌名跑马灯 -->
+                                <div class="text-xs font-pixel text-pink-500 whitespace-nowrap overflow-hidden relative h-4">
+                                    <div id="musicTitle" class="absolute animate-marquee whitespace-nowrap">
+                                        🎵 正在加载...
+                                    </div>
+                                </div>
+                                <!-- 歌手名 -->
+                                <div id="musicArtist" class="text-[10px] text-pink-300 font-bold truncate">
+                                    - Zzai -
+                                </div>
+                            </div>
+                            <!-- 播放状态灯 -->
+                            <div id="playStatus" class="w-2 h-2 rounded-full bg-slate-300 transition-colors duration-300 shadow-sm"></div>
+                        </div>
+
+                        <!-- 中间：伪频谱动画 -->
+                        <div class="flex items-end justify-center gap-1 h-8 opacity-60" id="visualizer">
+                            <div class="w-1.5 bg-pink-300 rounded-t-sm h-2 transition-all duration-100"></div>
+                            <div class="w-1.5 bg-pink-400 rounded-t-sm h-4 transition-all duration-100"></div>
+                            <div class="w-1.5 bg-pink-300 rounded-t-sm h-6 transition-all duration-100"></div>
+                            <div class="w-1.5 bg-pink-400 rounded-t-sm h-3 transition-all duration-100"></div>
+                            <div class="w-1.5 bg-pink-300 rounded-t-sm h-5 transition-all duration-100"></div>
+                            <div class="w-1.5 bg-pink-400 rounded-t-sm h-2 transition-all duration-100"></div>
+                        </div>
+
+                        <!-- 底部：控制按钮与音量 -->
+                        <div class="flex items-center justify-between gap-2">
+                            
+                            <!-- 按钮组 -->
+                            <div class="flex items-center gap-3">
+                                <button id="prevBtn" class="text-pink-300 hover:text-pink-500 transition hover:-translate-x-0.5"><i data-lucide="skip-back" class="w-5 h-5 fill-current"></i></button>
+                                <button id="playBtn" class="w-10 h-10 bg-white rounded-xl border-2 border-pink-100 flex items-center justify-center text-pink-400 shadow-sm hover:scale-105 active:scale-95 hover:bg-pink-50 transition">
+                                    <i id="playIcon" data-lucide="play" class="w-5 h-5 fill-current"></i>
+                                </button>
+                                <button id="nextBtn" class="text-pink-300 hover:text-pink-500 transition hover:translate-x-0.5"><i data-lucide="skip-forward" class="w-5 h-5 fill-current"></i></button>
+                            </div>
+
+                            <!-- 音量条 -->
+                            <div class="flex items-center gap-2 flex-1 max-w-[80px]">
+                                <i id="volIcon" data-lucide="volume-2" class="w-3 h-3 text-pink-300"></i>
+                                <input type="range" id="volSlider" min="0" max="1" step="0.05" value="0.5" class="cute-range">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 真正的音频标签 -->
+                    <audio id="audioPlayer"></audio>
                 </div>
 
             </div>
@@ -383,6 +485,320 @@
     <script>
     (() => {
         lucide.createIcons();
+
+        // -----------------------------------------------------------
+        // 4. 音乐播放器逻辑 (升级版：支持列表、音量、写实背景)
+        // -----------------------------------------------------------
+        
+        // --- A. 配置区：在这里修改你的歌单 ---
+        const playList = [
+            {
+                title: "Lofi Study Beats",
+                artist: "Chill Vibes",
+                src: "https://s.myhkw.cn/api.php?get=url&type=wy&id=1299889486&sign=57rRY7RYN9DjA&t=1771246344"
+            },
+            {
+                title: "Dreamy Clouds",
+                artist: "Zzai Select",
+                // 示例：这里放第二首歌的链接
+                src: "https://s.myhkw.cn/api.php?get=url&type=wy&id=2618276792&sign=a5nV4cOPxOBWc&t=1771256493" 
+            },
+            // 复制上面的格式可以继续添加更多歌曲...
+        ];
+
+        // --- B. 逻辑实现 ---
+        const audio = document.getElementById('audioPlayer');
+        const playBtn = document.getElementById('playBtn');
+        const prevBtn = document.getElementById('prevBtn');
+        const nextBtn = document.getElementById('nextBtn');
+        const playStatus = document.getElementById('playStatus');
+        const musicTitle = document.getElementById('musicTitle');
+        const musicArtist = document.getElementById('musicArtist');
+        const volSlider = document.getElementById('volSlider');
+        const visualizerDiv = document.getElementById('visualizer');
+        const bars = visualizerDiv.querySelectorAll('div');
+        
+        let currentSongIndex = 0;
+        let isPlaying = false;
+        let visualizerInterval;
+
+        // 1. 初始化加载第一首
+        function loadSong(index) {
+            const song = playList[index];
+            audio.src = song.src;
+            musicTitle.innerText = `🎵 ${song.title}`;
+            musicArtist.innerText = `- ${song.artist} -`;
+            // 简单重置跑马灯位置
+            musicTitle.parentElement.scrollLeft = 0;
+        }
+        
+        // 初始加载
+        if(playList.length > 0) {
+            loadSong(currentSongIndex);
+        }
+        audio.volume = 0.5; // 默认音量
+
+        // 2. 播放/暂停控制
+        function togglePlay() {
+            if (isPlaying) {
+                pauseMusic();
+            } else {
+                playMusic();
+            }
+        }
+
+        function playMusic() {
+            const playPromise = audio.play();
+            if (playPromise !== undefined) {
+                playPromise.then(() => {
+                    isPlaying = true;
+                    playStatus.classList.replace('bg-slate-300', 'bg-green-400');
+                    playStatus.classList.add('animate-pulse');
+                    playBtn.innerHTML = '<i data-lucide="pause" class="w-5 h-5 fill-current"></i>';
+                    lucide.createIcons();
+                    startVisualizer();
+                }).catch(error => console.log("播放被阻止:", error));
+            }
+        }
+
+        function pauseMusic() {
+            audio.pause();
+            isPlaying = false;
+            playStatus.classList.replace('bg-green-400', 'bg-slate-300');
+            playStatus.classList.remove('animate-pulse');
+            playBtn.innerHTML = '<i data-lucide="play" class="w-5 h-5 fill-current"></i>';
+            lucide.createIcons();
+            stopVisualizer();
+        }
+
+        // 3. 切歌逻辑
+        function changeSong(direction) {
+            if (direction === 'next') {
+                currentSongIndex = (currentSongIndex + 1) % playList.length;
+            } else {
+                currentSongIndex = (currentSongIndex - 1 + playList.length) % playList.length;
+            }
+            loadSong(currentSongIndex);
+            if (isPlaying) playMusic();
+        }
+
+        // 4. 事件监听
+        playBtn.addEventListener('click', togglePlay);
+        nextBtn.addEventListener('click', () => changeSong('next'));
+        prevBtn.addEventListener('click', () => changeSong('prev'));
+        
+        // 自动播放下一首
+        audio.addEventListener('ended', () => changeSong('next'));
+
+        // 音量调节
+        volSlider.addEventListener('input', (e) => {
+            audio.volume = e.target.value;
+        });
+
+        // 5. 简单的随机频谱动画
+        function startVisualizer() {
+            stopVisualizer(); // 防止多重定时器
+            visualizerInterval = setInterval(() => {
+                bars.forEach(bar => {
+                    const height = Math.floor(Math.random() * 20 + 4); // 随机高度
+                    bar.style.height = `${height}px`;
+                });
+            }, 100);
+        }
+
+        function stopVisualizer() {
+            clearInterval(visualizerInterval);
+            bars.forEach(bar => bar.style.height = '6px');
+        }
+
+        // --- C. 播放器背景Canvas动画 (圆润写实版) ---
+        const mCanvas = document.getElementById('musicBgCanvas');
+        const mCtx = mCanvas.getContext('2d');
+        // 不需要关闭平滑，因为我们要画矢量的圆
+        // mCtx.imageSmoothingEnabled = false; 
+        
+        let mWidth, mHeight;
+        let musicNotes = [];
+        let discRotation = 0;      // 唱片当前角度
+        let discSpeed = 0;         // 唱片当前转速
+        const maxSpeed = 0.05;     // 最大转速
+
+        // 简单的像素音符形状 (音符保持像素风格以呼应主题，或者你可以改成圆润的)
+        // 这里保留像素音符作为一种装饰对比
+        const noteSprite = [
+            [0,0,1,0],
+            [0,0,1,0],
+            [0,0,1,0],
+            [1,1,1,0],
+            [1,1,1,0]
+        ];
+
+        function resizeMusicCanvas() {
+            if (!mCanvas.parentElement) return;
+            const rect = mCanvas.parentElement.getBoundingClientRect();
+            mWidth = rect.width;
+            mHeight = rect.height;
+            mCanvas.width = mWidth;
+            mCanvas.height = mHeight;
+        }
+
+        // --- 1. 像素音符类 ---
+        class PixelNote {
+            constructor() {
+                this.reset();
+                this.y = Math.random() * mHeight; // 初始随机高度
+            }
+            reset() {
+                this.x = Math.random() * (mWidth - 100); // 避开右侧唱片区域
+                this.y = mHeight + 10;
+                this.speed = Math.random() * 0.3 + 0.1;
+                this.color = Math.random() > 0.5 ? '#ff9eb5' : '#89CFF0';
+                this.scale = Math.floor(Math.random() * 2) + 2;
+                this.wobble = Math.random() * Math.PI * 2;
+            }
+            update() {
+                // 播放时上升快一点
+                this.y -= this.speed * (isPlaying ? 1.5 : 0.5);
+                this.wobble += 0.05;
+                this.x += Math.sin(this.wobble) * 0.3;
+                
+                if (this.y < -20) this.reset();
+            }
+            draw() {
+                mCtx.fillStyle = this.color;
+                // 绘制像素音符 (这里用 fillRect 是为了像素风，但因为是小元素，不影响整体写实感)
+                noteSprite.forEach((row, r) => {
+                    row.forEach((pixel, c) => {
+                        if(pixel) mCtx.fillRect(this.x + c*this.scale, this.y + r*this.scale, this.scale, this.scale);
+                    });
+                });
+            }
+        }
+
+        // --- 2. 绘制写实唱片函数 (Vector Style) ---
+        function drawRealisticDisc(ctx, centerX, centerY, radius, rotation) {
+            ctx.save();
+            ctx.translate(centerX, centerY);
+            ctx.rotate(rotation);
+
+            // 1. 唱片本体 (黑色)
+            ctx.beginPath();
+            ctx.arc(0, 0, radius, 0, Math.PI * 2);
+            ctx.fillStyle = '#1a1a1a';
+            ctx.fill();
+
+            // 2. 唱片纹理 (深灰色沟槽圈)
+            ctx.strokeStyle = '#2a2a2a';
+            ctx.lineWidth = 1.5;
+            for(let r = radius * 0.4; r < radius * 0.95; r += 3) {
+                ctx.beginPath();
+                ctx.arc(0, 0, r, 0, Math.PI * 2);
+                ctx.stroke();
+            }
+
+            // 3. 中间贴纸 (粉色)
+            ctx.beginPath();
+            ctx.arc(0, 0, radius * 0.35, 0, Math.PI * 2);
+            ctx.fillStyle = '#ff80ab'; // 鲜艳的粉色
+            ctx.fill();
+            
+            // 贴纸边缘线
+            ctx.lineWidth = 1;
+            ctx.strokeStyle = '#ff4081';
+            ctx.stroke();
+            
+            // 贴纸上的装饰文字或图案 (简单的环)
+            ctx.beginPath();
+            ctx.arc(0, 0, radius * 0.25, 0, Math.PI * 2);
+            ctx.strokeStyle = 'rgba(255,255,255,0.3)';
+            ctx.stroke();
+
+            // 4. 中心孔 (背景色)
+            ctx.beginPath();
+            ctx.arc(0, 0, radius * 0.05, 0, Math.PI * 2);
+            ctx.fillStyle = '#fff0f5'; // 与背景融合
+            ctx.fill();
+
+            // 5. 光泽反光 (Glossy Effect) 
+            // 反光通常不随唱片旋转而完全旋转，而是取决于光源。
+            // 为了简化且好看，我们让反光层反向旋转一部分，或者保持静止。
+            // 这里我们让它保持静止 (rotate back)
+            ctx.rotate(-rotation); 
+            
+            // 下半部分的柔和反光
+            const grad = ctx.createLinearGradient(-radius, -radius, radius, radius);
+            grad.addColorStop(0, 'rgba(255,255,255,0.0)');
+            grad.addColorStop(0.45, 'rgba(255,255,255,0.0)');
+            grad.addColorStop(0.5, 'rgba(255,255,255,0.1)'); // 淡淡的一道光
+            grad.addColorStop(0.55, 'rgba(255,255,255,0.0)');
+            grad.addColorStop(1, 'rgba(255,255,255,0.0)');
+            
+            ctx.fillStyle = grad;
+            ctx.beginPath();
+            ctx.arc(0, 0, radius, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // 顶部的高光弧 (看起来更像塑料材质)
+            ctx.beginPath();
+            ctx.arc(0, 0, radius * 0.85, 1.2 * Math.PI, 1.8 * Math.PI); // 上方一段弧
+            ctx.lineWidth = radius * 0.1;
+            ctx.strokeStyle = 'rgba(255,255,255,0.08)';
+            ctx.lineCap = 'round';
+            ctx.stroke();
+
+            ctx.restore();
+        }
+
+        // 初始化音符
+        for(let i=0; i<5; i++) musicNotes.push(new PixelNote());
+
+        function animateMusicBg() {
+            // 修复：始终请求下一帧，防止因尺寸未就绪导致循环终止
+            requestAnimationFrame(animateMusicBg);
+
+            if(!mWidth || !mHeight) return;
+            mCtx.clearRect(0, 0, mWidth, mHeight);
+
+            // A. 更新唱片转速
+            if (isPlaying) {
+                if (discSpeed < maxSpeed) discSpeed += 0.001; // 缓慢加速
+            } else {
+                if (discSpeed > 0) discSpeed -= 0.001; // 缓慢减速
+                if (discSpeed < 0) discSpeed = 0;
+            }
+            discRotation += discSpeed;
+
+            // B. 绘制唱片 (位置：右侧，垂直居中)
+            // 定义半径：不再使用 scale，而是直接用像素半径
+            // 手机端稍微小一点，电脑端大一点
+            const discRadius = Math.min(mWidth, mHeight) * 0.8 / 2; 
+            const discX = mWidth - discRadius - 20; 
+            const discY = mHeight / 2 + 10;
+            
+            // 绘制唱片底下的阴影 (简单的圆形)
+            mCtx.fillStyle = 'rgba(0,0,0,0.1)'; // 阴影深一点点
+            mCtx.beginPath();
+            mCtx.arc(discX, discY + 4, discRadius, 0, Math.PI * 2);
+            mCtx.fill();
+
+            // 绘制实体唱片 (写实版)
+            drawRealisticDisc(mCtx, discX, discY, discRadius, discRotation);
+
+            // C. 绘制音符
+            musicNotes.forEach(note => {
+                note.update();
+                note.draw();
+            });
+        }
+
+        // 监听尺寸并启动
+        window.addEventListener('resize', resizeMusicCanvas);
+        // 延时启动确保布局准备好
+        setTimeout(() => {
+            resizeMusicCanvas();
+            animateMusicBg();
+        }, 200);
+
 
         // -----------------------------------------------------------
         // 0. 像素天气逻辑 (Open-Meteo 自动IP定位版)
