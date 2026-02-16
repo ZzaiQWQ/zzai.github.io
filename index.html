@@ -8,7 +8,7 @@
     <script src="https://unpkg.com/lucide@latest"></script>
     <!-- 引入可爱的圆体字 -->
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Fredoka:wght@300;400;500;600;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Fredoka:wght@300;400;500;600;700&family=Silkscreen&display=swap');
 
         :root {
             /* 可爱配色变量 */
@@ -29,6 +29,11 @@
             padding: 0;
             min-height: 100vh;
             -webkit-tap-highlight-color: transparent; /* 移除移动端点击高亮 */
+        }
+
+        /* 像素字体类 */
+        .font-pixel {
+            font-family: 'Silkscreen', cursive;
         }
 
         /* 萌系毛玻璃 */
@@ -185,7 +190,7 @@
                         <i data-lucide="map-pin" class="w-4 h-4 text-pink-400"></i> 喵星 · 南京分部
                     </div>
                     <div class="flex items-center justify-center gap-2 text-sm text-[#8d6e63]">
-                        <i data-lucide="briefcase" class="w-4 h-4 text-blue-400"></i> 打工人 · 搬砖中
+                        <i data-lucide="briefcase" class="w-4 h-4 text-blue-400"></i> 上班族 · 搬砖中
                     </div>
                 </div>
 
@@ -197,7 +202,7 @@
                     <span class="px-3 py-1.5 bg-purple-100 text-purple-500 rounded-xl text-xs font-bold shadow-sm"># 上班族</span>
                 </div>
 
-                <!-- 左侧像素动画区域 -->
+                <!-- 左侧像素动画区域 (工位) -->
                 <div class="w-full bg-[#fff0f5] rounded-2xl border-4 border-white shadow-inner overflow-hidden relative mb-6" style="height: 180px;">
                     <canvas id="sidebarCanvas" class="w-full h-full"></canvas>
                     <div class="absolute bottom-2 w-full text-center text-xs text-[#ec407a] opacity-80 font-bold tracking-widest">
@@ -226,9 +231,9 @@
                 </div>
 
                 <!-- 日夜开关 + 像素兔子 -->
-                <div class="flex justify-center items-center gap-4 w-full">
+                <div class="flex justify-center items-center gap-4 w-full mb-6">
                     
-                    <!-- 1. 左边：日夜图标 (修复Bug：使用两个叠加图标控制透明度) -->
+                    <!-- 1. 左边：日夜图标 -->
                     <div class="relative w-6 h-6">
                         <i id="sunIcon" data-lucide="sun" class="w-6 h-6 text-yellow-500 absolute inset-0 transition-opacity duration-300"></i>
                         <i id="moonIcon" data-lucide="moon" class="w-6 h-6 text-blue-300 absolute inset-0 transition-opacity duration-300 opacity-0"></i>
@@ -248,6 +253,24 @@
                         <canvas id="rabbitCanvas" width="40" height="40"></canvas>
                     </div>
                 </div>
+
+                <!-- 新增：像素天气小组件 (在兔子下方) -->
+                <div class="w-full bg-[#e3f2fd] rounded-xl border-2 border-white p-3 flex items-center justify-between shadow-sm relative overflow-hidden group hover:shadow-md transition-all">
+                    <!-- 左侧：动态像素天气画布 -->
+                    <div class="relative w-12 h-12 flex-shrink-0">
+                        <canvas id="weatherCanvas" width="48" height="48"></canvas>
+                    </div>
+                    
+                    <!-- 右侧：天气信息 (使用像素字体) -->
+                    <div class="flex flex-col items-end z-10">
+                        <span id="weatherTemp" class="font-pixel text-xl text-[#5d4037] leading-none">--°C</span>
+                        <span id="weatherCity" class="font-pixel text-xs text-[#8d6e63] mt-1">LOADING</span>
+                    </div>
+                    
+                    <!-- 装饰背景点 -->
+                    <div class="absolute -right-4 -bottom-4 w-16 h-16 bg-white/30 rounded-full blur-xl"></div>
+                </div>
+
             </div>
         </aside>
 
@@ -346,7 +369,140 @@
         lucide.createIcons();
 
         // -----------------------------------------------------------
-        // 1. 左侧静态温馨工位动画 (增加自适应缩放)
+        // 0. 像素天气逻辑 (Open-Meteo 自动IP定位版)
+        // -----------------------------------------------------------
+        const wCanvas = document.getElementById('weatherCanvas');
+        const wCtx = wCanvas.getContext('2d');
+        let weatherFrame = 0;
+        let currentWeatherCode = 0; 
+
+        // 像素天气图标精灵 (12x12 -> Scale 4)
+        const weatherSprites = {
+            sun: [
+                [0,0,0,1,0,0,0,1,0,0,0],
+                [0,0,0,0,0,0,0,0,0,0,0],
+                [0,0,0,2,2,2,2,2,0,0,0],
+                [1,0,2,2,2,2,2,2,2,0,1],
+                [0,0,2,2,2,2,2,2,2,0,0],
+                [0,0,2,2,2,2,2,2,2,0,0],
+                [0,0,2,2,2,2,2,2,2,0,0],
+                [1,0,2,2,2,2,2,2,2,0,1],
+                [0,0,0,2,2,2,2,2,0,0,0],
+                [0,0,0,0,0,0,0,0,0,0,0],
+                [0,0,0,1,0,0,0,1,0,0,0]
+            ],
+            cloud: [
+                [0,0,0,0,0,0,0,0,0,0,0],
+                [0,0,0,0,3,3,3,0,0,0,0],
+                [0,0,0,3,3,3,3,3,0,0,0],
+                [0,0,3,3,3,3,3,3,3,0,0],
+                [0,3,3,3,3,3,3,3,3,3,0],
+                [3,3,3,3,3,3,3,3,3,3,3],
+                [3,3,3,3,3,3,3,3,3,3,3],
+                [0,3,3,3,3,3,3,3,3,3,0],
+                [0,0,0,0,0,0,0,0,0,0,0],
+                [0,0,0,0,0,0,0,0,0,0,0],
+                [0,0,0,0,0,0,0,0,0,0,0]
+            ],
+            rain: [
+                [0,0,0,0,0,0,0,0,0,0,0],
+                [0,0,0,0,3,3,3,0,0,0,0],
+                [0,0,3,3,3,3,3,3,3,0,0],
+                [0,3,3,3,3,3,3,3,3,3,0],
+                [0,3,3,3,3,3,3,3,3,3,0],
+                [0,0,0,0,0,0,0,0,0,0,0],
+                [0,0,4,0,0,4,0,0,4,0,0], // 雨滴
+                [0,0,0,0,0,0,0,0,0,0,0],
+                [0,4,0,0,4,0,0,4,0,0,0],
+                [0,0,0,0,0,0,0,0,0,0,0]
+            ]
+        };
+        const wColors = { 1: '#fdd835', 2: '#ffeb3b', 3: '#ffffff', 4: '#4fc3f7' };
+
+        function drawPixelWeather() {
+            if(!wCtx) return;
+            wCtx.clearRect(0, 0, 48, 48);
+            const scale = 4;
+            let sprite = weatherSprites.sun;
+            let offsetY = 0;
+
+            if (currentWeatherCode > 2 && currentWeatherCode < 50) sprite = weatherSprites.cloud;
+            if (currentWeatherCode >= 50) sprite = weatherSprites.rain; 
+
+            if (currentWeatherCode >= 50) offsetY = (weatherFrame % 4) * 2;
+
+            sprite.forEach((row, r) => {
+                row.forEach((pixel, c) => {
+                    if (pixel !== 0) {
+                        wCtx.fillStyle = wColors[pixel];
+                        if (pixel === 4) { 
+                            let rainY = (r * scale + offsetY) % 48;
+                            if(rainY < 20) rainY += 20; 
+                            wCtx.fillRect(c * scale, rainY, scale, scale);
+                        } else {
+                            wCtx.fillRect(c * scale, r * scale, scale, scale);
+                        }
+                    }
+                });
+            });
+            weatherFrame++;
+            requestAnimationFrame(drawPixelWeather);
+        }
+
+        async function fetchWeather() {
+            const cityEl = document.getElementById('weatherCity');
+            const tempEl = document.getElementById('weatherTemp');
+            
+            // 默认值 (作为最后的保底)
+            let lat = 32.06;
+            let lon = 118.79;
+            let city = "NANJING";
+
+            try {
+                // 1. 尝试通过 IP 获取位置
+                // 使用 ipapi.co (免费，支持 HTTPS)
+                const locationRes = await fetch('https://ipapi.co/json/');
+                
+                if (locationRes.ok) {
+                    const locationData = await locationRes.json();
+                    if (locationData.latitude && locationData.longitude) {
+                        lat = locationData.latitude;
+                        lon = locationData.longitude;
+                        city = (locationData.city || city).toUpperCase();
+                    }
+                }
+            } catch (e) {
+                console.warn("Location detection failed, using default.");
+            }
+
+            try {
+                // 2. 根据坐标获取天气 (Open-Meteo)
+                const weatherRes = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current_weather=true&timezone=auto`);
+                
+                if (!weatherRes.ok) throw new Error('Weather API Error');
+                const weatherData = await weatherRes.json();
+                
+                const temp = Math.round(weatherData.current_weather.temperature);
+                currentWeatherCode = weatherData.current_weather.weathercode; // WMO 代码
+
+                cityEl.innerText = city;
+                tempEl.innerText = `${temp}°C`;
+                drawPixelWeather();
+
+            } catch (error) {
+                // 最终保底：如果天气API也不通，显示默认南京
+                cityEl.innerText = "NANJING";
+                tempEl.innerText = "24°C";
+                currentWeatherCode = 0;
+                drawPixelWeather();
+            }
+        }
+        
+        fetchWeather();
+
+
+        // -----------------------------------------------------------
+        // 1. 左侧静态温馨工位动画
         // -----------------------------------------------------------
         const sidebarCanvas = document.getElementById('sidebarCanvas');
         const sCtx = sidebarCanvas.getContext('2d');
@@ -380,7 +536,7 @@
         }
 
         // -----------------------------------------------------------
-        // 2. 顶部像素猫咪动画逻辑 (移除手机悬停交互)
+        // 2. 顶部像素猫咪动画逻辑
         // -----------------------------------------------------------
         const canvas = document.getElementById('pixelCatCanvas');
         const ctx = canvas.getContext('2d');
@@ -484,7 +640,7 @@
                     ctx.fillStyle = C.outline; ctx.font = '12px "Fredoka"'; ctx.fillText("Meow~", catX + 40, catY);
                 }
                 
-                // 悬停互动气泡 (仅在非触摸模式下显示)
+                // 悬停互动气泡 (仅在PC端显示)
                 if (isCatHovered && !isTouchInteraction && index === 0) {
                     const bubbleX = catX + 20;
                     const bubbleY = catY - 30;
@@ -501,14 +657,10 @@
 
         // --- 交互优化核心逻辑 ---
 
-        // 1. 触摸事件处理 (移动端) - 仅标记触摸，禁止悬停逻辑，允许滚动
         canvas.addEventListener('touchstart', (e) => {
             isTouchInteraction = true;
-            // 不调用 preventDefault()，允许页面滚动
-            // 不改变 currentSpeed 或 isCatHovered，保持动画继续运行
         }, { passive: true });
 
-        // 2. 鼠标悬停处理 (PC端)
         canvas.addEventListener('mouseenter', () => { 
             if(isTouchInteraction) return; 
             currentSpeed = 0; 
@@ -523,7 +675,6 @@
             isCatHovered = false;
         });
         
-        // 3. 点击/点击产生粒子 (所有端保留)
         canvas.addEventListener('click', (e) => {
             const rect = canvas.getBoundingClientRect();
             const x = e.clientX - rect.left; const y = e.clientY - rect.top;
@@ -531,11 +682,10 @@
         });
 
         // -----------------------------------------------------------
-        // 3. 像素兔子 (左侧装饰 - 同样处理触摸)
+        // 3. 像素兔子 (左侧装饰)
         // -----------------------------------------------------------
         const rabbitCanvas = document.getElementById('rabbitCanvas');
         const rCtx = rabbitCanvas.getContext('2d');
-        const bubble = document.getElementById('rabbitBubble'); // 注意：左侧气泡元素
         const rabbitSprite = [[0,0,0,0,0,0,0,0],[0,1,0,0,0,1,0,0],[0,1,2,0,2,1,0,0],[0,1,1,1,1,1,0,0],[0,1,3,1,3,1,0,0],[0,1,2,1,2,1,0,0],[0,1,1,1,1,1,0,0],[0,0,1,1,1,0,0,0]];
         function drawRabbit() {
             rCtx.clearRect(0, 0, 40, 40);
@@ -551,20 +701,6 @@
         }
         drawRabbit();
 
-        // 兔子交互优化
-        const rabbitContainer = document.getElementById('rabbitContainer');
-        rabbitContainer.addEventListener('touchstart', () => { isTouchInteraction = true; }, { passive: true });
-        rabbitContainer.addEventListener('mouseenter', () => {
-            if (isTouchInteraction) return;
-            const randomWord = randomWords[Math.floor(Math.random() * randomWords.length)];
-            bubble.innerText = randomWord;
-            bubble.classList.add('bubble-show');
-        });
-        rabbitContainer.addEventListener('mouseleave', () => {
-            if (isTouchInteraction) return;
-            bubble.classList.remove('bubble-show');
-        });
-
         // 通用大小监听
         window.addEventListener('resize', () => { resize(); resizeSidebar(); });
         
@@ -576,12 +712,14 @@
 
         toggle.addEventListener('change', function() {
             if(this.checked) {
+                // 夜晚模式
                 body.style.background = 'linear-gradient(135deg, #2c3e50 0%, #4ca1af 100%)';
                 document.documentElement.style.setProperty('--glass-bg', 'rgba(0, 0, 0, 0.4)');
                 document.documentElement.style.setProperty('--text-main', '#e0e0e0');
                 sunIcon.classList.add('opacity-0');
                 moonIcon.classList.remove('opacity-0');
             } else {
+                // 白天模式
                 body.style.background = 'linear-gradient(135deg, #fff0f5 0%, #e0f7fa 100%)';
                 document.documentElement.style.setProperty('--glass-bg', 'rgba(255, 255, 255, 0.65)');
                 document.documentElement.style.setProperty('--text-main', '#5d4037');
